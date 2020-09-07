@@ -1,5 +1,6 @@
 package de.fhkiel.pepper.cms;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
+                // TODO: getting different github repos
                 URL repoURL = new URL("https://github.com/hanneseilers/key-genrator.git");
 
                 this.github = new GithubAPI();
