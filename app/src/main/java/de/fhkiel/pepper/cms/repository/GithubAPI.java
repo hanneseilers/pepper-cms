@@ -1,4 +1,4 @@
-package de.fhkiel.pepper.cms;
+package de.fhkiel.pepper.cms.repository;
 
 import android.util.Log;
 
@@ -47,16 +47,16 @@ public class GithubAPI {
         throw new RuntimeException("No valid repository url: " + path);
     }
 
-    public ArrayList<GithubRepository> getReleases(URL repoURL) throws AuthFailedException {
+    public ArrayList<GithubRelease> getReleases(URL repoURL) throws AuthFailedException {
         String releasesUrl = requestReleasesUrl(repoURL).replace("{/id}", "");
         try {
-            ArrayList<GithubRepository> releases = new ArrayList<>();
+            ArrayList<GithubRelease> releases = new ArrayList<>();
             JSONArray array = getArray(new URL(releasesUrl));
             for (int i=0; i<array.length(); i++) {
                 try {
 
                     JSONObject json = array.getJSONObject(i);
-                    releases.add(GithubRepository.fromJson(json));
+                    releases.add(GithubRelease.fromJson(json));
 
                 } catch (JSONException e) {
                     e.printStackTrace();

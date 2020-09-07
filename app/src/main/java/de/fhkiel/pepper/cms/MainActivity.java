@@ -1,16 +1,15 @@
 package de.fhkiel.pepper.cms;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import org.json.JSONObject;
-
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
+import de.fhkiel.pepper.cms.repository.GithubAPI;
+import de.fhkiel.pepper.cms.repository.GithubRelease;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,9 +29,11 @@ public class MainActivity extends AppCompatActivity {
 
                 this.github = new GithubAPI();
                 URL repoUrl = this.github.getRespositoryURL(repoURL);
-                ArrayList<GithubRepository> repositories = this.github.getReleases(repoUrl);
-                for (GithubRepository repo : repositories){
-                    Log.i(TAG, repo.toString());
+                ArrayList<GithubRelease> releases = this.github.getReleases(repoUrl);
+
+                for (GithubRelease release : releases){
+
+                    Log.i(TAG, release.toString());
                 }
 
             } catch (MalformedURLException | GithubAPI.AuthFailedException e) {

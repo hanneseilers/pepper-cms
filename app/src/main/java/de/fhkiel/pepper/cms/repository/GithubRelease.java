@@ -1,6 +1,4 @@
-package de.fhkiel.pepper.cms;
-
-import android.util.Log;
+package de.fhkiel.pepper.cms.repository;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,11 +6,9 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-public class GithubRepository {
+public class GithubRelease {
 
     private int id;
     private String url;
@@ -22,7 +18,7 @@ public class GithubRepository {
     private Date published;
     private JSONArray assets;
 
-    private static final String TAG = GithubRepository.class.getName();
+    private static final String TAG = GithubRelease.class.getName();
 
     public int getId() {
         return id;
@@ -59,8 +55,8 @@ public class GithubRepository {
                 + this.getUrl() + "\n";
     }
 
-    public static GithubRepository fromJson(JSONObject json){
-        GithubRepository repo = new GithubRepository();
+    public static GithubRelease fromJson(JSONObject json){
+        GithubRelease repo = new GithubRelease();
 
         try {
 
