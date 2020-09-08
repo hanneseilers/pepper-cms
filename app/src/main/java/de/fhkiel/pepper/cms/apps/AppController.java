@@ -1,6 +1,8 @@
 package de.fhkiel.pepper.cms.apps;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -26,9 +28,20 @@ public class AppController implements PepperAppController {
 
     @Override
     public boolean startPepperApp(PepperApp app) {
-        Log.i(TAG, "starting:" + app.getName());
-        Log.i(TAG, app.getItentCategory()+ ":" + app.getItentAction());
-        return false;
+        Log.d(TAG, "trying to start:" + app.getName() + " - " + app.getIntentPackage()+ "/" + app.getIntentClass());
+        Intent intent = new Intent();
+        intent.setClassName(app.getIntentPackage(), app.getIntentClass());
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // TODO: Add settings data
+
+        try {
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e){
+            Log.e(TAG, "Execption on intent: " + e.getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -60,11 +73,11 @@ public class AppController implements PepperAppController {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     Log.d(TAG, "processing json to PepperApp: " + jsonObject.toString());
-                    if (jsonObject.has("name") && jsonObject.has("intentAction") && jsonObject.has("intentCategory")) {
+                    if (jsonObject.has("name") && jsonObject.has("intentPackage") && jsonObject.has("intentClass")) {
                         PepperApp app = new PepperApp();
                         app.setName(jsonObject.getString("name"));
-                        app.setItentAction(jsonObject.getString("intentAction"));
-                        app.setItentCategory(jsonObject.getString("intentCategory"));
+                        app.setIntentPackage(jsonObject.getString("intentPackage"));
+                        app.setIntentClass(jsonObject.getString("intentClass"));
                         // Add code to add additional rescources here
                         apps.add(app);
                     }

@@ -7,8 +7,8 @@ import de.fhkiel.pepper.cms.repository.Repository;
  */
 public class PepperApp {
     private String name;
-    private String itentAction;
-    private String itentCategory;
+    private String intentPackage;
+    private String intentClass;
     private String currentVersion;
     private String latestVersion;
 
@@ -22,25 +22,6 @@ public class PepperApp {
     @SuppressWarnings(value = "unsued")
     public void setName(String name) {
         this.name = name;
-    }
-
-    @SuppressWarnings(value = "unsued")
-    public String getItentAction() {
-        return itentAction;
-    }
-
-    @SuppressWarnings(value = "unsued")
-    public void setItentAction(String itentAction) {
-        this.itentAction = itentAction;
-    }
-
-    public String getItentCategory() {
-        return itentCategory;
-    }
-
-    @SuppressWarnings(value = "unsued")
-    public void setItentCategory(String itentCategory) {
-        this.itentCategory = itentCategory;
     }
 
     @SuppressWarnings(value = "unsued")
@@ -61,5 +42,25 @@ public class PepperApp {
     @SuppressWarnings(value = "unsued")
     public void setLatestVersion(String latestVersion) {
         this.latestVersion = latestVersion;
+    }
+
+    @SuppressWarnings(value = "unsued")
+    public String getIntentPackage() {
+        return intentPackage;
+    }
+
+    @SuppressWarnings(value = "unsued")
+    public void setIntentPackage(String intentPackage) {
+        this.intentPackage = intentPackage;
+    }
+
+    @SuppressWarnings(value = "unsued")
+    public String getIntentClass() {
+        return intentClass;
+    }
+
+    @SuppressWarnings(value = "unsued")
+    public void setIntentClass(String itentClass) {
+        this.intentClass = itentClass;
     }
 }
