@@ -1,0 +1,12 @@
+[
+  {
+    "name":  "App 1",
+    "intentAction": "MAIN",
+    "intentCategory": "PepperApp.App1"
+  },
+  {
+    "name":  "App 2",
+    "intentAction": "MAIN",
+    "intentCategory": "PepperApp.App2"
+  }
+]

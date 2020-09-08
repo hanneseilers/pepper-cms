@@ -19,6 +19,9 @@ allprojects {
     	maven {
     		url 'https://qisdk.softbankrobotics.com/sdk/maven'
     	}
+        maven {
+            url 'https://maven.google.com'
+        }
     }
 }
 
