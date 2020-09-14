@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import de.fhkiel.pepper.cms.R;
+import de.fhkiel.pepper.cms.users.User;
 
 public class AppController implements PepperAppController {
     private static final String TAG = AppController.class.getName();
@@ -27,12 +28,29 @@ public class AppController implements PepperAppController {
     }
 
     @Override
-    public boolean startPepperApp(PepperApp app) {
+    public boolean startPepperApp(PepperApp app, User user) {
         Log.d(TAG, "trying to start:" + app.getName() + " - " + app.getIntentPackage()+ "/" + app.getIntentClass());
         Intent intent = new Intent();
         intent.setClassName(app.getIntentPackage(), app.getIntentClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        // TODO: Add settings data
+
+        try {
+
+            JSONObject json = new JSONObject();
+            json.put("game", app.toJSONObject().toString());
+            if(user != null) {
+                json.put("user", user.toJSONObject().toString());
+                if( user.getGamedata().containsKey( app.getName() ) ){
+                    json.put("data", user.getGamedata().get( app.getName() ).toString() );
+                } else {
+                    json.put("data", "{}");
+                }
+            }
+            Log.i(TAG, json.toString());
+            intent.putExtra("pepperapp", json.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         try {
             context.startActivity(intent);

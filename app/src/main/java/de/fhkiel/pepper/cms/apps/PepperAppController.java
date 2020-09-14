@@ -1,16 +1,33 @@
 package de.fhkiel.pepper.cms.apps;
 
+import de.fhkiel.pepper.cms.users.User;
+
 public interface PepperAppController {
     /**
      * Starts a {@link PepperApp} via {@link android.content.Intent}.
-     * @param app   {@link PepperApp} to start.
-     * @return      true if successful, false otherwise.
+     *
+     * @param app {@link PepperApp} to start.
+     * @param user {@link User} authenticated, null if none found.
+     * @return true if successful, false otherwise.
      */
-    public boolean startPepperApp(PepperApp app);
+    default boolean startPepperApp(PepperApp app, User user) {
+        return false;
+    }
+
+    /**
+     * Starts a {@link PepperApp} via {@link android.content.Intent}.
+     *
+     * @param app {@link PepperApp} to start.
+     * @return true if successful, false otherwise.
+     */
+    default boolean startPepperApp(PepperApp app){
+        return startPepperApp(app, null);
+    }
 
     /**
      * Function to load available {@link PepperApp}s
-     * @param callback  {@link PepperAppInterface} object, which is called if {@link PepperApp}s are loaded.
+     *
+     * @param callback {@link PepperAppInterface} object, which is called if {@link PepperApp}s are loaded.
      */
-    public void loadPepperApps(PepperAppInterface callback);
+    default void loadPepperApps(PepperAppInterface callback) {}
 }
