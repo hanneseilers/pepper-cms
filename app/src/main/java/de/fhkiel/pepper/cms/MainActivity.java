@@ -16,6 +16,7 @@ import de.fhkiel.pepper.cms.apps.AppController;
 import de.fhkiel.pepper.cms.apps.PepperApp;
 import de.fhkiel.pepper.cms.apps.PepperAppController;
 import de.fhkiel.pepper.cms.apps.PepperAppInterface;
+import de.fhkiel.pepper.cms.users.User;
 
 public class MainActivity extends AppCompatActivity implements RobotLifecycleCallbacks, PepperAppInterface {
     private static final String TAG = MainActivity.class.getName();
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
                 Button button = new Button(this);
                 button.setText(app.getName());
                 button.setOnClickListener(view -> {
-                    appController.startPepperApp(app);
+                    appController.startPepperApp(app, new User());
                 });
                 layout.addView(button);
             }
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
      */
     @Override
     public void onRobotFocusLost() {
-
+        Log.d(TAG, "robot focus lost");
     }
 
     /**
