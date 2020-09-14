@@ -1,12 +1,7 @@
 [
   {
-    "name":  "App 1",
-    "intentPackage": "com.google",
-    "intentClass": "MainClass"
-  },
-  {
-    "name":  "App 2",
-    "intentPackage": "com.google",
-    "intentClass": "MainClass"
+    "name":  "TestApp",
+    "intentPackage": "de.fhkiel.pepper.testapp",
+    "intentClass": "de.fhkiel.pepper.testapp.MainActivity"
   }
 ]
