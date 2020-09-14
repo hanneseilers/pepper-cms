@@ -1,16 +1,22 @@
 package de.fhkiel.pepper.cms.apps;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
+
+import de.fhkiel.pepper.cms.JSONObjectable;
 import de.fhkiel.pepper.cms.repository.Repository;
 
 /**
  * Class to store informations about different apps, available on Pepper robot.
  */
-public class PepperApp {
+public class PepperApp implements JSONObjectable {
     private String name;
     private String intentPackage;
     private String intentClass;
-    private String currentVersion;
-    private String latestVersion;
+    private String currentVersion = "";
+    private String latestVersion = "";
 
     private Repository repository;
 
@@ -62,5 +68,20 @@ public class PepperApp {
     @SuppressWarnings(value = "unsued")
     public void setIntentClass(String itentClass) {
         this.intentClass = itentClass;
+    }
+
+    @Override
+    public JSONObject toJSONObject() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", getName());
+            json.put("currentVersion", getCurrentVersion());
+            json.put("latestVersion", getLatestVersion());
+            json.put("intentPackage", getIntentPackage());
+            json.put("intentClass", getIntentClass());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 }
