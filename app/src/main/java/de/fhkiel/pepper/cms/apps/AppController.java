@@ -16,7 +16,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import de.fhkiel.pepper.cms.R;
-import de.fhkiel.pepper.cms.users.User;
+import de.fhkiel.pepper.cms_lib.users.User;
+import de.fhkiel.pepper.cms_lib.apps.PepperApp;
+import de.fhkiel.pepper.cms_lib.apps.PepperAppController;
+import de.fhkiel.pepper.cms_lib.apps.PepperAppInterface;
 
 public class AppController implements PepperAppController {
     private static final String TAG = AppController.class.getName();
@@ -34,22 +37,12 @@ public class AppController implements PepperAppController {
         intent.setClassName(app.getIntentPackage(), app.getIntentClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        try {
-
-            JSONObject json = new JSONObject();
-            json.put("game", app.toJSONObject().toString());
-            if(user != null) {
-                json.put("user", user.toJSONObject().toString());
-                if( user.getGamedata().containsKey( app.getName() ) ){
-                    json.put("data", user.getGamedata().get( app.getName() ).toString() );
-                } else {
-                    json.put("data", "{}");
-                }
+        intent.putExtra("app", app);
+        if(user != null) {
+            intent.putExtra("user", user);
+            if( user.getGamedata().containsKey( app.getName() ) ){
+                intent.putExtra("data", user.getGamedata().get( app.getName() ).toString() );
             }
-            Log.i(TAG, json.toString());
-            intent.putExtra("pepperapp", json.toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         try {
@@ -92,8 +85,7 @@ public class AppController implements PepperAppController {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     Log.d(TAG, "processing json to PepperApp: " + jsonObject.toString());
                     if (jsonObject.has("name") && jsonObject.has("intentPackage") && jsonObject.has("intentClass")) {
-                        PepperApp app = new PepperApp();
-                        app.setName(jsonObject.getString("name"));
+                        PepperApp app = new PepperApp(jsonObject.getString("name"));
                         app.setIntentPackage(jsonObject.getString("intentPackage"));
                         app.setIntentClass(jsonObject.getString("intentClass"));
                         // Add code to add additional rescources here

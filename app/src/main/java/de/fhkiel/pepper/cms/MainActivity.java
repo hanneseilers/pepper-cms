@@ -13,10 +13,10 @@ import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
 import java.util.ArrayList;
 
 import de.fhkiel.pepper.cms.apps.AppController;
-import de.fhkiel.pepper.cms.apps.PepperApp;
-import de.fhkiel.pepper.cms.apps.PepperAppController;
-import de.fhkiel.pepper.cms.apps.PepperAppInterface;
-import de.fhkiel.pepper.cms.users.User;
+import de.fhkiel.pepper.cms_lib.apps.PepperApp;
+import de.fhkiel.pepper.cms_lib.apps.PepperAppController;
+import de.fhkiel.pepper.cms_lib.apps.PepperAppInterface;
+import de.fhkiel.pepper.cms_lib.users.User;
 
 public class MainActivity extends AppCompatActivity implements RobotLifecycleCallbacks, PepperAppInterface {
     private static final String TAG = MainActivity.class.getName();
