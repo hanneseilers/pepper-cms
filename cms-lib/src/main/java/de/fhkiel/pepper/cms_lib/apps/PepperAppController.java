@@ -1,6 +1,6 @@
-package de.fhkiel.pepper.cms.apps;
+package de.fhkiel.pepper.cms_lib.apps;
 
-import de.fhkiel.pepper.cms.users.User;
+import de.fhkiel.pepper.cms_lib.users.User;
 
 public interface PepperAppController {
     /**

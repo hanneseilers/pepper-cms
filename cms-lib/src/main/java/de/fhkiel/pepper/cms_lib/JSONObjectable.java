@@ -1,4 +1,4 @@
-package de.fhkiel.pepper.cms;
+package de.fhkiel.pepper.cms_lib;
 
 import org.json.JSONObject;
 
