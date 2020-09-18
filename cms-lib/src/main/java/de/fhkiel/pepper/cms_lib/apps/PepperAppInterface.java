@@ -8,5 +8,5 @@ public interface PepperAppInterface {
      *
      * @param apps List of loaded available {@link PepperApp}s
      */
-    default void onPepperAppsLoaded(ArrayList<PepperApp> apps) {}
+    void onPepperAppsLoaded(ArrayList<PepperApp> apps);
 }

@@ -7,7 +7,5 @@ public interface JSONObjectable {
     /**
      * @return JSONObject
      */
-    default JSONObject toJSONObject(){
-        return new JSONObject();
-    }
+    JSONObject toJSONObject();
 }

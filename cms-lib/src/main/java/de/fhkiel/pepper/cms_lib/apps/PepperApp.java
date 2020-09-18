@@ -1,35 +1,22 @@
 package de.fhkiel.pepper.cms_lib.apps;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.fhkiel.pepper.cms_lib.repository.Repository;
+import de.fhkiel.pepper.cms_lib.JSONObjectable;
 
 /**
  * Class to store informations about different apps, available on Pepper robot.
  */
-public class PepperApp implements Parcelable {
+public class PepperApp implements JSONObjectable {
     private String name;
     private String intentPackage;
     private String intentClass;
     private String currentVersion = "";
     private String latestVersion = "";
 
-    private Repository repository;
-
     public PepperApp(String name){
         setName(name);
-    }
-
-    public PepperApp(Parcel in){
-        setName(in.readString());
-        setIntentPackage(in.readString());
-        setIntentClass(in.readString());
-        setCurrentVersion(in.readString());
-        setLatestVersion(in.readString());
     }
 
     @SuppressWarnings(value = "unsued")
@@ -82,33 +69,25 @@ public class PepperApp implements Parcelable {
         this.intentClass = itentClass;
     }
 
-    public static final Parcelable.Creator<PepperApp> CREATOR = new Parcelable.Creator<PepperApp>(){
-        @Override
-        public PepperApp createFromParcel(Parcel parcel) {
-            return new PepperApp(parcel);
-        }
-
-        @Override
-        public PepperApp[] newArray(int size) {
-            return new PepperApp[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(getName());
-        parcel.writeString(getIntentPackage());
-        parcel.writeString(getIntentClass());
-        parcel.writeString(getCurrentVersion());
-        parcel.writeString(getLatestVersion());
-    }
-
     public String toString(){
-        return getName() + ": " + getIntentPackage() + "/" + getIntentClass() + " (current: " + getCurrentVersion() + ", latest: " + getLatestVersion() + ")";
+        return toJSONObject().toString();
+    }
+
+    /**
+     * @return JSONObject
+     */
+    @Override
+    public JSONObject toJSONObject() {
+        JSONObject json = new JSONObject();
+        try{
+            json.put("name", getName());
+            json.put("intentPackage", getIntentPackage());
+            json.put("intentClass", getIntentClass());
+            json.put("currentVersion", getCurrentVersion());
+            json.put("latestVersion", getLatestVersion());
+        } catch(JSONException e){
+            e.printStackTrace();
+        }
+        return json;
     }
 }

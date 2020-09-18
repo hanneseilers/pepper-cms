@@ -37,9 +37,9 @@ public class AppController implements PepperAppController {
         intent.setClassName(app.getIntentPackage(), app.getIntentClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        intent.putExtra("app", app);
+        intent.putExtra("app", app.toJSONObject().toString()  );
         if(user != null) {
-            intent.putExtra("user", user);
+            intent.putExtra("user", user.toJSONObject().toString());
             if( user.getGamedata().containsKey( app.getName() ) ){
                 intent.putExtra("data", user.getGamedata().get( app.getName() ).toString() );
             }

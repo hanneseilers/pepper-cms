@@ -1,4 +1,4 @@
-package de.fhkiel.pepper.cms_lib.repository;
+package de.fhkiel.pepper.cms.repository;
 
 import org.json.JSONArray;
 import org.json.JSONException;

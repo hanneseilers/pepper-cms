@@ -1,15 +1,16 @@
 package de.fhkiel.pepper.cms_lib.users;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.HashMap;
 
+import de.fhkiel.pepper.cms_lib.JSONObjectable;
 
-public class User implements Parcelable {
+
+public class User implements JSONObjectable {
 
     private String salut = "";
     private String prename = "";
@@ -22,13 +23,6 @@ public class User implements Parcelable {
     }
 
     public User(){}
-
-    public User(Parcel in){
-        setSalut(in.readString());
-        setPrename(in.readString());
-        setLastname(in.readString());
-        setBirthday( new Date(in.readLong()) );
-    }
 
     public String getUsername(){
         return getPrename().replace(" ", "") + "." + getLastname().replace(" ", "");
@@ -66,42 +60,25 @@ public class User implements Parcelable {
         this.birthday = birthday;
     }
 
-    public void addGameData(String name, JSONObject json){
-        if(this.gamedata == null){
-            this.gamedata = new HashMap<>();
-        }
-
-        this.gamedata.put(name, json);
-    }
-
-    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>(){
-
-        @Override
-        public User createFromParcel(Parcel parcel) {
-            return new User(parcel);
-        }
-
-        @Override
-        public User[] newArray(int i) {
-            return new User[0];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(getSalut());
-        parcel.writeString(getPrename());
-        parcel.writeString(getLastname());
-        parcel.writeString(getUsername());
-        parcel.writeLong(getBirthday().getTime());
-    }
-
     public String toString(){
-        return getUsername() + ": " + getSalut() + " " + getPrename() + " " + getLastname() + " (birthday: " + getBirthday() + ", games: " + getGamedata().size() + ")";
+        return toJSONObject().toString();
+    }
+
+    /**
+     * @return JSONObject
+     */
+    @Override
+    public JSONObject toJSONObject() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("salut", getSalut());
+            json.put("prename", getPrename());
+            json.put("lastname", getLastname());
+            json.put("username", getUsername());
+            json.put("birthday", getBirthday().getTime());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 }
