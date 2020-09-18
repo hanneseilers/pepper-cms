@@ -1,7 +1,7 @@
 [
   {
     "name":  "TestApp",
-    "intentPackage": "de.fhkiel.pepper.testapp",
-    "intentClass": "de.fhkiel.pepper.testapp.MainActivity"
+    "intentPackage": "de.fhkiel.pepper.demo.app",
+    "intentClass": "de.fhkiel.pepper.demo.app.MainActivity"
   }
 ]
