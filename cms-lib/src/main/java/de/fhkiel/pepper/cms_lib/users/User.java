@@ -9,7 +9,9 @@ import java.util.HashMap;
 
 import de.fhkiel.pepper.cms_lib.JSONObjectable;
 
-
+/**
+ * User representation
+ */
 public class User implements JSONObjectable {
 
     private String salut = "";

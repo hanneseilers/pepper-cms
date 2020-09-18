@@ -4,6 +4,10 @@ import java.util.ArrayList;
 
 import de.fhkiel.pepper.cms_lib.users.User;
 
+/**
+ * Interface of objects that can control the app handling.
+ * Implementing functions to load and start {@link PepperApp}s.
+ */
 public interface PepperAppController {
 
     ArrayList<PepperAppInterface> pepperAppInterfaceListener = new ArrayList<>();
