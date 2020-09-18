@@ -1,8 +1,13 @@
 package de.fhkiel.pepper.cms_lib.apps;
 
+import java.util.ArrayList;
+
 import de.fhkiel.pepper.cms_lib.users.User;
 
 public interface PepperAppController {
+
+    ArrayList<PepperAppInterface> pepperAppInterfaceListener = new ArrayList<>();
+
     /**
      * Starts a {@link PepperApp} via {@link android.content.Intent}.
      *
@@ -23,9 +28,21 @@ public interface PepperAppController {
     }
 
     /**
-     * Function to load available {@link PepperApp}s
-     *
-     * @param callback {@link PepperAppInterface} object, which is called if {@link PepperApp}s are loaded.
+     * Function to load available {@link PepperApp}
+     * Notifies all listeners, if apps loaded.
      */
-    void loadPepperApps(PepperAppInterface callback);
+    void loadPepperApps();
+
+    default void addPepperAppInterfaceListener(PepperAppInterface listener){
+        if(!pepperAppInterfaceListener.contains(listener)){
+            pepperAppInterfaceListener.add(listener);
+        }
+    };
+
+    default void removePepperAppInterfaceListener(PepperAppInterface listener){
+        if(pepperAppInterfaceListener.contains(listener)){
+            pepperAppInterfaceListener.remove(listener);
+        }
+    }
+
 }

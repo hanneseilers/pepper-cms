@@ -37,8 +37,8 @@ public class AppController implements PepperAppController {
         intent.setClassName(app.getIntentPackage(), app.getIntentClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        intent.putExtra("app", app.toJSONObject().toString()  );
-        if(user != null) {
+        intent.putExtra("app", app.toJSONObject().toString() );
+        if(user != null && user.getUsername().trim().replace(".", "").length() > 0) {
             intent.putExtra("user", user.toJSONObject().toString());
             if( user.getGamedata().containsKey( app.getName() ) ){
                 intent.putExtra("data", user.getGamedata().get( app.getName() ).toString() );
@@ -56,7 +56,7 @@ public class AppController implements PepperAppController {
     }
 
     @Override
-    public void loadPepperApps(PepperAppInterface callback) {
+    public void loadPepperApps() {
         new Thread(() -> {
 
             // TODO: load apps from online source
@@ -65,9 +65,9 @@ public class AppController implements PepperAppController {
             Log.d(TAG, "Loading apps from rescource file");
             JSONArray jsonPepperApps = readJSONfromRescource(R.raw.pepperapps);
             ArrayList<PepperApp> apps = jsonToPepperApps(jsonPepperApps);
-            if(callback!=null){
+            for(PepperAppInterface listener : pepperAppInterfaceListener){
                 Log.d(TAG, "calling callback");
-                callback.onPepperAppsLoaded(apps);
+                listener.onPepperAppsLoaded(apps);
             }
 
         }).start();
@@ -119,5 +119,11 @@ public class AppController implements PepperAppController {
         }
 
         return null;
+    }
+
+    private void notifyOnAppStart(PepperApp app){
+        for(PepperAppInterface listener : pepperAppInterfaceListener){
+            listener.onAppStarted(app);
+        }
     }
 }
