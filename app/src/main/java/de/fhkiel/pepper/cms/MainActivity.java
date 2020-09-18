@@ -1,10 +1,12 @@
 package de.fhkiel.pepper.cms;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
@@ -12,10 +14,11 @@ import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
 
 import java.util.ArrayList;
 
-import de.fhkiel.pepper.cms.apps.AppController;
-import de.fhkiel.pepper.cms.apps.PepperApp;
-import de.fhkiel.pepper.cms.apps.PepperAppController;
-import de.fhkiel.pepper.cms.apps.PepperAppInterface;
+import de.fhkiel.pepper.cms_core.apps.AppController;
+import de.fhkiel.pepper.cms_lib.apps.PepperApp;
+import de.fhkiel.pepper.cms_lib.apps.PepperAppController;
+import de.fhkiel.pepper.cms_lib.apps.PepperAppInterface;
+import de.fhkiel.pepper.cms_lib.users.User;
 
 public class MainActivity extends AppCompatActivity implements RobotLifecycleCallbacks, PepperAppInterface {
     private static final String TAG = MainActivity.class.getName();
@@ -31,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
 
         // Creating cms app controller
         appController = new AppController(getBaseContext());
+        appController.addPepperAppInterfaceListener(this);
         Log.d(TAG, "app controller created");
 
         // ---- UI LOGIC BEGIN ----
@@ -42,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
 
         // after loading ui, get available apps
         Log.i(TAG, "loading apps");
-        appController.loadPepperApps(this);
+        appController.loadPepperApps();
     }
 
     @Override
@@ -63,14 +67,13 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
                 Button button = new Button(this);
                 button.setText(app.getName());
                 button.setOnClickListener(view -> {
-                    appController.startPepperApp(app);
+                    appController.startPepperApp(app, new User());
                 });
                 layout.addView(button);
             }
 
         });
     }
-
     /**
      * Callback, {@link PepperAppController} uses, if {@link PepperApp}s are loaded.
      *
@@ -82,6 +85,38 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
         this.pepperApps = apps;
         showAppsUi(this.pepperApps);
     }
+
+    /**
+     * Called, if app will be started
+     *
+     * @param app
+     */
+    @Override
+    public void onAppStarted(PepperApp app) {toast(app.getName() + " started");}
+
+    /**
+     * Called if an update for a {@link PepperApp} is available
+     *
+     * @param app {@link PepperApp} update is available for.
+     */
+    @Override
+    public void onAppUpdateAvailable(PepperApp app) {toast("ready for update: " + app.getName());}
+
+    /**
+     * Called if app update starts
+     *
+     * @param app {@link PepperApp} app updated is started for.
+     */
+    @Override
+    public void onAppUpdate(PepperApp app) {toast("updating: " + app.getName());}
+
+    /**
+     * Called if {@link PepperApp} is updated.
+     *
+     * @param app {@link PepperApp} that is updated.
+     */
+    @Override
+    public void onAppUpdated(PepperApp app) {toast("updated: " + app.getName());}
 
     /**
      * Called when focus is gained
@@ -101,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
      */
     @Override
     public void onRobotFocusLost() {
-
+        Log.d(TAG, "robot focus lost");
     }
 
     /**
@@ -110,7 +145,18 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
      * @param reason the reason
      */
     @Override
-    public void onRobotFocusRefused(String reason) {
+    public void onRobotFocusRefused(String reason) {}
 
+    /**
+     * Called to show a toast.
+     * @param text
+     */
+    private void toast(CharSequence text){
+        runOnUiThread(() -> {
+            Context context = getApplicationContext();
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        });
     }
 }
