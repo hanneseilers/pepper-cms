@@ -1,4 +1,4 @@
-package de.fhkiel.pepper.cms.repository;
+package de.fhkiel.pepper.cms_core.repository;
 
 import android.util.Log;
 

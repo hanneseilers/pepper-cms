@@ -1,4 +1,4 @@
-package de.fhkiel.pepper.cms.apps;
+package de.fhkiel.pepper.cms_core.apps;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -15,7 +15,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-import de.fhkiel.pepper.cms.R;
 import de.fhkiel.pepper.cms_lib.users.User;
 import de.fhkiel.pepper.cms_lib.apps.PepperApp;
 import de.fhkiel.pepper.cms_lib.apps.PepperAppController;
@@ -61,13 +60,26 @@ public class AppController implements PepperAppController {
 
             // TODO: load apps from online source
 
+            // TODO: Modify pepper app list
+            String pepperapps = "[" +
+                    "  {" +
+                    "    \"name\":  \"TestApp\"," +
+                    "    \"intentPackage\": \"de.fhkiel.pepper.demo.app\"," +
+                    "    \"intentClass\": \"de.fhkiel.pepper.demo.app.MainActivity\"" +
+                    "  }" +
+                    "]";
+
             // LOADING APPS FROM RESCOURCE FILE
             Log.d(TAG, "Loading apps from rescource file");
-            JSONArray jsonPepperApps = readJSONfromRescource(R.raw.pepperapps);
-            ArrayList<PepperApp> apps = jsonToPepperApps(jsonPepperApps);
-            for(PepperAppInterface listener : pepperAppInterfaceListener){
-                Log.d(TAG, "calling callback");
-                listener.onPepperAppsLoaded(apps);
+            try {
+                JSONArray jsonPepperApps = jsonPepperApps = new JSONArray(pepperapps);
+                ArrayList<PepperApp> apps = jsonToPepperApps(jsonPepperApps);
+                for (PepperAppInterface listener : PepperAppController.pepperAppInterfaceListener) {
+                    Log.d(TAG, "calling callback");
+                    listener.onPepperAppsLoaded(apps);
+                }
+            } catch (JSONException e){
+                e.printStackTrace();
             }
 
         }).start();
@@ -122,7 +134,7 @@ public class AppController implements PepperAppController {
     }
 
     private void notifyOnAppStart(PepperApp app){
-        for(PepperAppInterface listener : pepperAppInterfaceListener){
+        for(PepperAppInterface listener : PepperAppController.pepperAppInterfaceListener){
             listener.onAppStarted(app);
         }
     }

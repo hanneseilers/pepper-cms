@@ -1,7 +1,0 @@
-[
-  {
-    "name":  "TestApp",
-    "intentPackage": "de.fhkiel.pepper.demo.app",
-    "intentClass": "de.fhkiel.pepper.demo.app.MainActivity"
-  }
-]

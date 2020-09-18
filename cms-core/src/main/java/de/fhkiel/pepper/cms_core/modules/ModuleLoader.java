@@ -1,4 +1,4 @@
-package de.fhkiel.pepper.cms.modules;
+package de.fhkiel.pepper.cms_core.modules;
 
 import java.io.File;
 

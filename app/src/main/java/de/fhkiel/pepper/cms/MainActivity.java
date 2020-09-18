@@ -14,7 +14,7 @@ import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
 
 import java.util.ArrayList;
 
-import de.fhkiel.pepper.cms.apps.AppController;
+import de.fhkiel.pepper.cms_core.apps.AppController;
 import de.fhkiel.pepper.cms_lib.apps.PepperApp;
 import de.fhkiel.pepper.cms_lib.apps.PepperAppController;
 import de.fhkiel.pepper.cms_lib.apps.PepperAppInterface;
