@@ -1,7 +1,9 @@
 package de.fhkiel.pepper.cms;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
         QiSDK.register(this, this);
 
         // Creating cms app controller
-        appController = new AppController(getBaseContext());
+        appController = new AppController(this);
         appController.addPepperAppInterfaceListener(this);
         Log.d(TAG, "app controller created");
 
@@ -47,6 +49,15 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
         // after loading ui, get available apps
         Log.i(TAG, "loading apps");
         appController.loadPepperApps();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(this.appController != null){
+            this.appController.onActivityResult(requestCode, resultCode, data);
+        } else {
+            Log.e(TAG, "cannot give activity result to app controler. null found!");
+        }
     }
 
     @Override

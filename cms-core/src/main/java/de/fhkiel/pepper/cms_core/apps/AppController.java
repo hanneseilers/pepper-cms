@@ -1,8 +1,9 @@
 package de.fhkiel.pepper.cms_core.apps;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.fhkiel.pepper.cms_lib.users.User;
 import de.fhkiel.pepper.cms_lib.apps.PepperApp;
@@ -23,11 +25,11 @@ import de.fhkiel.pepper.cms_lib.apps.PepperAppInterface;
 public class AppController implements PepperAppController {
     private static final String TAG = AppController.class.getName();
 
-    private Context context;
+    private Activity activity;
+    private HashMap<Integer, PepperApp> apps = new HashMap<>();
+    private HashMap<Integer, Intent>  pendingIntentResults = new HashMap<>();
 
-    public AppController(Context context) {
-        this.context = context;
-    }
+    public AppController(Activity activity) { this.activity = activity; }
 
     @Override
     public boolean startPepperApp(PepperApp app, User user) {
@@ -45,7 +47,7 @@ public class AppController implements PepperAppController {
         }
 
         try {
-            context.startActivity(intent);
+            activity.startActivityForResult(intent, app.getIdentifier().hashCode());
         } catch (ActivityNotFoundException e){
             Log.e(TAG, "Execption on intent: " + e.getMessage());
             return false;
@@ -74,6 +76,17 @@ public class AppController implements PepperAppController {
             try {
                 JSONArray jsonPepperApps = jsonPepperApps = new JSONArray(pepperapps);
                 ArrayList<PepperApp> apps = jsonToPepperApps(jsonPepperApps);
+
+                // save apps
+                for(PepperApp app : apps) {
+                    int hash = app.getIdentifier().hashCode();
+                    this.apps.put(hash, app);
+                }
+
+                // process pending events
+                processPrendingIntentResults();
+
+                // notify listener
                 for (PepperAppInterface listener : PepperAppController.pepperAppInterfaceListener) {
                     Log.d(TAG, "calling callback");
                     listener.onPepperAppsLoaded(apps);
@@ -116,7 +129,7 @@ public class AppController implements PepperAppController {
      * Reading json data into @JSONArray from resource file.
      */
     private JSONArray readJSONfromRescource(int rescource){
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(rescource), Charset.forName("UTF-8")));
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(activity.getResources().openRawResource(rescource), Charset.forName("UTF-8")));
         String json = "";
         String line = "";
 
@@ -138,4 +151,35 @@ public class AppController implements PepperAppController {
             listener.onAppStarted(app);
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "received intent result data, request: " + requestCode + " , result: " + resultCode);
+        if( resultCode == Activity.RESULT_OK ){
+            pendingIntentResults.put(requestCode, data);
+            processPrendingIntentResults();
+        }
+    }
+
+    private void processPrendingIntentResults(){
+        Log.d(TAG, "processing " + pendingIntentResults.size() + " peding intent results");
+        for( int hashcode : pendingIntentResults.keySet() ){
+            Intent intent = pendingIntentResults.get(hashcode);
+            if( intent.hasExtra("data") ){
+                saveAppData(hashcode, intent.getStringExtra("data"));
+            }
+        }
+    }
+
+    private void saveAppData(Integer hascode, String data){
+        Log.d(TAG, "save app data for app " + hashCode());
+        // TODO
+    }
+
+    private static boolean isExternalStorageWriteable() {
+        String extStorageState = Environment.getExternalStorageState();
+        return ( Environment.MEDIA_MOUNTED.equals(extStorageState) &&
+                !Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState) );
+    }
+
 }
