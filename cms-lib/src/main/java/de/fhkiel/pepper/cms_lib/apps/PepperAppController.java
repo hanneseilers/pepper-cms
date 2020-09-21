@@ -1,5 +1,7 @@
 package de.fhkiel.pepper.cms_lib.apps;
 
+import android.content.Intent;
+
 import java.util.ArrayList;
 
 import de.fhkiel.pepper.cms_lib.users.User;
@@ -48,5 +50,7 @@ public interface PepperAppController {
             pepperAppInterfaceListener.remove(listener);
         }
     }
+
+    void onActivityResult(int requestCode, int resultCode, Intent data);
 
 }
