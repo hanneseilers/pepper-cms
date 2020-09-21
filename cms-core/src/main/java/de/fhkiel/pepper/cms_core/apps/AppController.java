@@ -24,16 +24,22 @@ import de.fhkiel.pepper.cms_lib.apps.PepperAppInterface;
 
 public class AppController implements PepperAppController {
     private static final String TAG = AppController.class.getName();
+    private static final int REQUEST_CODE = 53;
 
     private Activity activity;
     private HashMap<Integer, PepperApp> apps = new HashMap<>();
-    private HashMap<Integer, Intent>  pendingIntentResults = new HashMap<>();
+    private HashMap<String, Intent>  pendingIntentResults = new HashMap<>();
 
     public AppController(Activity activity) { this.activity = activity; }
 
     @Override
     public boolean startPepperApp(PepperApp app, User user) {
         Log.d(TAG, "trying to start:" + app.getName() + " - " + app.getIntentPackage()+ "/" + app.getIntentClass());
+
+        // process pending intent results
+        processPrendingIntentResults();
+
+        // create intent
         Intent intent = new Intent();
         intent.setClassName(app.getIntentPackage(), app.getIntentClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -47,7 +53,7 @@ public class AppController implements PepperAppController {
         }
 
         try {
-            activity.startActivityForResult(intent, app.getIdentifier().hashCode());
+            activity.startActivityForResult(intent, REQUEST_CODE);
         } catch (ActivityNotFoundException e){
             Log.e(TAG, "Execption on intent: " + e.getMessage());
             return false;
@@ -155,15 +161,25 @@ public class AppController implements PepperAppController {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "received intent result data, request: " + requestCode + " , result: " + resultCode);
-        if( resultCode == Activity.RESULT_OK ){
-            pendingIntentResults.put(requestCode, data);
-            processPrendingIntentResults();
+        if( requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK
+                && data != null && data.hasExtra("app") ){
+
+            try {
+                JSONObject appData = new JSONObject(data.getStringExtra("app"));
+                if(appData.has("hashcode")) {
+                    pendingIntentResults.put(appData.getString("hashcode"), data);
+                    processPrendingIntentResults();
+                }
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+
         }
     }
 
     private void processPrendingIntentResults(){
         Log.d(TAG, "processing " + pendingIntentResults.size() + " peding intent results");
-        for( int hashcode : pendingIntentResults.keySet() ){
+        for( String hashcode : pendingIntentResults.keySet() ){
             Intent intent = pendingIntentResults.get(hashcode);
             if( intent.hasExtra("data") ){
                 saveAppData(hashcode, intent.getStringExtra("data"));
@@ -171,7 +187,7 @@ public class AppController implements PepperAppController {
         }
     }
 
-    private void saveAppData(Integer hascode, String data){
+    private void saveAppData(String hascode, String data){
         Log.d(TAG, "save app data for app " + hashCode());
         // TODO
     }

@@ -1,5 +1,7 @@
 package de.fhkiel.pepper.cms_lib.apps;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,8 +75,8 @@ public class PepperApp implements JSONObjectable {
         return getIntentPackage() + "/" + getIntentClass();
     }
 
-    public Integer getHashCode(){
-        return getIdentifier().hashCode();
+    public String getHashCode(){
+        return new String(Hex.encodeHex(DigestUtils.sha1(getIdentifier())) );
     }
 
     public String toString(){
@@ -93,6 +95,7 @@ public class PepperApp implements JSONObjectable {
             json.put("intentClass", getIntentClass());
             json.put("currentVersion", getCurrentVersion());
             json.put("latestVersion", getLatestVersion());
+            json.put("hashcode", getHashCode());
         } catch(JSONException e){
             e.printStackTrace();
         }
