@@ -69,6 +69,14 @@ public class PepperApp implements JSONObjectable {
         this.intentClass = itentClass;
     }
 
+    public String getIdentifier(){
+        return getIntentPackage() + "/" + getIntentClass();
+    }
+
+    public Integer getHashCode(){
+        return getIdentifier().hashCode();
+    }
+
     public String toString(){
         return toJSONObject().toString();
     }
