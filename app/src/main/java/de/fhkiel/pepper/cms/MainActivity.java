@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        Log.i(TAG, "received intent result");
+
         if(this.appController != null){
             this.appController.onActivityResult(requestCode, resultCode, data);
         } else {
