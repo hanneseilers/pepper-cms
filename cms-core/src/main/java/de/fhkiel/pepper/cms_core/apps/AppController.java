@@ -11,7 +11,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -49,12 +51,14 @@ public class AppController implements PepperAppController {
         intent.putExtra("app", app.toJSONObject().toString() );
         if(user != null && user.getUsername().trim().replace(".", "").length() > 0) {
             intent.putExtra("user", user.toJSONObject().toString());
-            if( user.getGamedata().containsKey( app.getName() ) ){
-                intent.putExtra("data", user.getGamedata().get( app.getName() ).toString() );
+            String gameData = loadAppData(app.getHashCode(), user);
+            if( gameData != null ){
+                intent.putExtra("data", gameData );
             }
         }
 
         try {
+            Log.d(TAG, "starting intent: " + intent);
             activity.startActivityForResult(intent, REQUEST_CODE);
         } catch (ActivityNotFoundException e){
             Log.e(TAG, "Execption on intent: " + e.getMessage());
@@ -192,7 +196,20 @@ public class AppController implements PepperAppController {
         for( String hashcode : pendingIntentResults.keySet() ){
             Intent intent = pendingIntentResults.get(hashcode);
             if( intent.hasExtra("data") ){
-                saveAppData(hashcode, intent.getStringExtra("data"), null);
+
+                // get user from intent
+                User user = null;
+                if(intent.hasExtra("user")){
+                    try {
+                        user = User.fromJSONObject(new JSONObject(intent.getStringExtra("user")));
+                    } catch (JSONException e){
+                        Log.e(TAG, "cannot read user data from intent result:\n" + intent.getStringExtra("user"));
+                    }
+                }
+
+                // save app data to file
+                saveAppData(hashcode, intent.getStringExtra("data"), user);
+
             }
         }
     }
@@ -202,31 +219,68 @@ public class AppController implements PepperAppController {
      * Exsisting data is overwritten.
      * @param hashcode  {@link String} hash code of app
      * @param data      {@link String} data of app.
-     * @param username  {@link String} username data belongs to. If null, data is saved as user 'none'.
+     * @param user      {@link User} data belongs to. If null, data is saved as user 'none'.
      */
-    private void saveAppData(String hashcode, String data, String username){
-        Log.d(TAG, "save app data for app " + hashcode);
+    private void saveAppData(String hashcode, String data, User user){
+        Log.d(TAG, "save data for app " + hashcode);
+        Log.d(TAG, "user: " + (user != null ? user.toJSONObject().toString() : "none"));
         if(activity != null && data != null) {
-            // TODO: Replace username with unique name incl. birthday.
-            String appFileName = hashcode + ".json";
-            String extFilePtah = externalStoragePath + (username != null ? username : "none");
-            File appFile = null;
-            if (isExternalStorageWriteable()) {
-                appFile = new File(activity.getExternalFilesDir(extFilePtah), appFileName);
-            } else {
-                appFile = new File(activity.getFilesDir() + "/" + extFilePtah, appFileName);
+
+            File appFile = getGameFile(hashcode, user);
+            try {
+                if(appFile != null) {
+                    Log.d(TAG, "saving app data to " + appFile + ":\n" + data);
+                    FileOutputStream outputStream = new FileOutputStream(appFile);
+                    outputStream.write(data.getBytes());
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                Log.w(TAG, "Cannot write to file: " + e);
             }
 
-            // save data
+        }
+    }
+
+    private String loadAppData(String hashcode, User user){
+        Log.d(TAG, "load data for app " + hashcode);
+        Log.d(TAG, "user: " + user.toJSONObject().toString());
+
+        if(activity != null){
+
+            File appFile = getGameFile(hashcode, user);
             try {
-                Log.d(TAG, "saving app data to " + appFile + ":\n" + data);
-                FileOutputStream outputStream = new FileOutputStream(appFile);
-                outputStream.write(data.getBytes());
-                outputStream.close();
+                if (appFile != null) {
+                    FileInputStream fileInputStream = new FileInputStream(appFile);
+                    DataInputStream inputStream = new DataInputStream(fileInputStream);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader((inputStream)));
+                    String line;
+                    String data = "";
+                    while ((line = reader.readLine()) != null){
+                        data += line;
+                    }
+                    inputStream.close();
+                    return data;
+                }
             } catch (IOException e) {
-                Log.e(TAG, "Cannot write to file: " + e);
+                Log.w(TAG, "Cannot read from file: " + e);
+            }
+
+        }
+
+        return null;
+    }
+
+    private File getGameFile(String hashcode, User user){
+        File appFile = null;
+        if(activity != null){
+            String appFileName = hashcode + ".json";
+            String extFilePtah = externalStoragePath + (user != null ? user.getUserFilePathName() : "none");
+            appFile = new File(activity.getFilesDir() + "/" + extFilePtah, appFileName);
+            if (isExternalStorageWriteable()) {
+                appFile = new File(activity.getExternalFilesDir(extFilePtah), appFileName);
             }
         }
+        return appFile;
     }
 
     private static boolean isExternalStorageWriteable() {
