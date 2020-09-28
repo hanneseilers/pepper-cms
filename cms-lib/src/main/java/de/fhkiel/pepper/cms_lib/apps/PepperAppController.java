@@ -51,6 +51,18 @@ public interface PepperAppController {
         }
     }
 
+    /**
+     * Needs to be called, if intent return result. Handles whatever needs to be done with the rsult of an app.
+     * @param requestCode   {@link Integer} of returns request code
+     * @param resultCode    {@link Integer} of returns result code (for example {@link android.app.Activity}.RESULT_OK [-1] if app exsited gracefully)
+     * @param data          {@link String} of data to handle (for example store) for an app.
+     */
     void onActivityResult(int requestCode, int resultCode, Intent data);
+
+    /**
+     * Sets path where to store game files.     *
+     * @param path  {@link String} of path
+     */
+    void setExternalStoragePath(String path);
 
 }

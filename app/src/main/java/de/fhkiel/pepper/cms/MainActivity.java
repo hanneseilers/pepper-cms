@@ -15,6 +15,7 @@ import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import de.fhkiel.pepper.cms_core.apps.AppController;
 import de.fhkiel.pepper.cms_lib.apps.PepperApp;
@@ -53,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Log.i(TAG, "received intent result");
-
         if(this.appController != null){
             this.appController.onActivityResult(requestCode, resultCode, data);
         } else {
@@ -80,7 +79,11 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
                 Button button = new Button(this);
                 button.setText(app.getName());
                 button.setOnClickListener(view -> {
-                    appController.startPepperApp(app, new User());
+                    // creating test user
+                    User user = new User();
+                    user.setPrename("john");
+                    user.setLastname("doe");
+                    appController.startPepperApp(app, user);
                 });
                 layout.addView(button);
             }

@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -27,6 +29,7 @@ public class AppController implements PepperAppController {
     private static final int REQUEST_CODE = 53;
 
     private Activity activity;
+    private String externalStoragePath = "games/db/";
     private HashMap<Integer, PepperApp> apps = new HashMap<>();
     private HashMap<String, Intent>  pendingIntentResults = new HashMap<>();
 
@@ -42,7 +45,6 @@ public class AppController implements PepperAppController {
         // create intent
         Intent intent = new Intent();
         intent.setClassName(app.getIntentPackage(), app.getIntentClass());
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         intent.putExtra("app", app.toJSONObject().toString() );
         if(user != null && user.getUsername().trim().replace(".", "").length() > 0) {
@@ -58,6 +60,9 @@ public class AppController implements PepperAppController {
             Log.e(TAG, "Execption on intent: " + e.getMessage());
             return false;
         }
+
+        // notify about app start
+        notifyOnAppStart(app);
 
         return true;
     }
@@ -119,7 +124,7 @@ public class AppController implements PepperAppController {
                         PepperApp app = new PepperApp(jsonObject.getString("name"));
                         app.setIntentPackage(jsonObject.getString("intentPackage"));
                         app.setIntentClass(jsonObject.getString("intentClass"));
-                        // Add code to add additional rescources here
+                        // TODO: Add code to add additional rescources here
                         apps.add(app);
                     }
                 }
@@ -160,7 +165,7 @@ public class AppController implements PepperAppController {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "received intent result data, request: " + requestCode + " , result: " + resultCode);
+        Log.d(TAG, "received intent result data, request: " + requestCode + " , result: " + (resultCode == Activity.RESULT_OK ? "ok" : "not ok") );
         if( requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK
                 && data != null && data.hasExtra("app") ){
 
@@ -177,19 +182,51 @@ public class AppController implements PepperAppController {
         }
     }
 
+    @Override
+    public void setExternalStoragePath(String path) {
+        externalStoragePath = path;
+    }
+
     private void processPrendingIntentResults(){
         Log.d(TAG, "processing " + pendingIntentResults.size() + " peding intent results");
         for( String hashcode : pendingIntentResults.keySet() ){
             Intent intent = pendingIntentResults.get(hashcode);
             if( intent.hasExtra("data") ){
-                saveAppData(hashcode, intent.getStringExtra("data"));
+                saveAppData(hashcode, intent.getStringExtra("data"), null);
             }
         }
     }
 
-    private void saveAppData(String hascode, String data){
-        Log.d(TAG, "save app data for app " + hashCode());
-        // TODO
+    /**
+     * Saves app data to external files dir. And if not available or not writeable, to internal files dir.
+     * Exsisting data is overwritten.
+     * @param hashcode  {@link String} hash code of app
+     * @param data      {@link String} data of app.
+     * @param username  {@link String} username data belongs to. If null, data is saved as user 'none'.
+     */
+    private void saveAppData(String hashcode, String data, String username){
+        Log.d(TAG, "save app data for app " + hashcode);
+        if(activity != null && data != null) {
+            // TODO: Replace username with unique name incl. birthday.
+            String appFileName = hashcode + ".json";
+            String extFilePtah = externalStoragePath + (username != null ? username : "none");
+            File appFile = null;
+            if (isExternalStorageWriteable()) {
+                appFile = new File(activity.getExternalFilesDir(extFilePtah), appFileName);
+            } else {
+                appFile = new File(activity.getFilesDir() + "/" + extFilePtah, appFileName);
+            }
+
+            // save data
+            try {
+                Log.d(TAG, "saving app data to " + appFile + ":\n" + data);
+                FileOutputStream outputStream = new FileOutputStream(appFile);
+                outputStream.write(data.getBytes());
+                outputStream.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Cannot write to file: " + e);
+            }
+        }
     }
 
     private static boolean isExternalStorageWriteable() {
