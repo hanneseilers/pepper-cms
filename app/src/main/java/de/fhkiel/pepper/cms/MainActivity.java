@@ -5,9 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayout;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.aldebaran.qi.sdk.QiContext;
@@ -15,7 +16,6 @@ import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import de.fhkiel.pepper.cms_core.apps.AppController;
 import de.fhkiel.pepper.cms_lib.apps.PepperApp;
@@ -73,16 +73,21 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
             // TODO: handle loadig apps into ui
 
             // simple example
-            LinearLayout layout = (LinearLayout) findViewById(R.id.linearLayout);
+            GridLayout layout = findViewById(R.id.gridApps);
             layout.removeAllViewsInLayout();
             for(PepperApp app : apps){
                 Button button = new Button(this);
                 button.setText(app.getName());
                 button.setOnClickListener(view -> {
+
                     // creating test user
-                    User user = new User();
-                    user.setPrename("john");
-                    user.setLastname("doe");
+                    Switch swDefaultUser = findViewById(R.id.swDefaultUser);
+                    User user = null;
+                    if(swDefaultUser.isChecked()) {
+                        user = new User();
+                        user.setPrename("john");
+                        user.setLastname("doe");
+                    }
                     appController.startPepperApp(app, user);
                 });
                 layout.addView(button);
