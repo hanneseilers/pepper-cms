@@ -14,8 +14,8 @@ public class PepperApp implements JSONObjectable {
     private String name;
     private String intentPackage;
     private String intentClass;
-    private String currentVersion = "";
-    private String latestVersion = "";
+    private Integer currentVersion = 0;
+    private Integer latestVersion = 0;
     private String tags = "";
     private String downloadURL = "";
 
@@ -34,22 +34,22 @@ public class PepperApp implements JSONObjectable {
     }
 
     @SuppressWarnings(value = "unsued")
-    public String getCurrentVersion() {
+    public Integer getCurrentVersion() {
         return currentVersion;
     }
 
     @SuppressWarnings(value = "unsued")
-    public void setCurrentVersion(String currentVersion) {
+    public void setCurrentVersion(Integer currentVersion) {
         this.currentVersion = currentVersion;
     }
 
     @SuppressWarnings(value = "unsued")
-    public String getLatestVersion() {
+    public Integer getLatestVersion() {
         return latestVersion;
     }
 
     @SuppressWarnings(value = "unsued")
-    public void setLatestVersion(String latestVersion) {
+    public void setLatestVersion(Integer latestVersion) {
         this.latestVersion = latestVersion;
     }
 
@@ -120,6 +120,8 @@ public class PepperApp implements JSONObjectable {
             json.put("hashcode", getHashCode());
             json.put("tags", getTags());
             json.put("downloadURL", getDownloadURL());
+            json.put("lastestVersion", getLatestVersion());
+            json.put("currentVersion", getCurrentVersion());
         } catch(JSONException e){
             e.printStackTrace();
         }

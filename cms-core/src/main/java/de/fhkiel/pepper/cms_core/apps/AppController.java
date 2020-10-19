@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Looper;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -19,8 +20,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,8 +37,9 @@ public class AppController implements PepperAppController {
     private static final int REQUEST_CODE = 53;
     private static final int REQUEST_FILE_CODE = 24149;
 
-    private static final String localAppsPath = "config/";
+    private static final String localConfig = "config/";
     private static final String localAppsFile = "apps.local";
+    private static final String localOnlineRepositoriesFile = "repositories.config";
 
     private Activity activity;
     private String externalStoragePath = "games/db/";
@@ -84,17 +87,68 @@ public class AppController implements PepperAppController {
     @Override
     public void loadPepperApps() {
         Log.d(TAG, "Loading Pepper apps from rescources");
+        ArrayList<String> repositories = new ArrayList<>();
 
-        ArrayList<String> pepperapps = new ArrayList<>();
-
-        // TODO: load rescources apps from online source
-
-
-        // load apps from string data
-        for( String data : pepperapps ){
-            addPepperApps(data);
+        // check if on ui thread!
+        if( Thread.currentThread() == Looper.getMainLooper().getThread() ){
+            Log.e(TAG, "Running online app rescource update on ui thread! This is not allowed!");
+            return;
         }
 
+        // TODO: load rescources apps from online source
+        try {
+
+            // get repositories
+            File repsitoryFile = getFile(localConfig, localOnlineRepositoriesFile);
+            String data = loadFileData(repsitoryFile);
+
+            if( data != null ) {
+
+                // get list of repositories
+                JSONArray jsonRepositories = new JSONArray(data);
+                for( int i=0; i<jsonRepositories.length(); i++){
+                    repositories.add( jsonRepositories.getString(i) );
+                }
+
+                // add apps
+                for( String url : repositories ) {
+                    String content = getDataFromUrl( new URL(url) );
+                    addPepperApps(content);
+                }
+
+            }
+
+
+        } catch (MalformedURLException | JSONException e) {
+            e.printStackTrace();
+            Log.w(TAG, "Error reading online repository:\n" + e.getMessage());
+        }
+    }
+
+    /**
+     * Reads string data from {@link URL}
+     * @param url   {@link URL} to read from
+     * @return      {@link String} data, null on error
+     */
+    private String getDataFromUrl(URL url){
+        try {
+
+            BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(url.openStream()) );
+            String data = "";
+            String line = "";
+
+            while( (line = bufferedReader.readLine()) != null ){
+                data += line;
+            }
+
+            return data;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.w(TAG, "Cannot read data from: " + url);
+        }
+
+        return null;
     }
 
     /**
@@ -110,26 +164,17 @@ public class AppController implements PepperAppController {
         this.updatableApps.clear();
 
         new Thread(() -> {
+            // get offline rescources
+            File config = getFile(localConfig, localAppsFile);
+            String data = loadFileData(config);
+
+            // add Apps from string
+            addPepperApps(data);
+
+            // get online recources
             if (load){
                 loadPepperApps();
             }
-
-            // get offline rescources
-            // TODO
-
-            String test = "[" +
-                    "  {" +
-                    "    \"name\":  \"TestApp\"," +
-                    "    \"intentPackage\": \"de.fhkiel.pepper.demo.app\"," +
-                    "    \"intentClass\": \"de.fhkiel.pepper.demo.app.MainActivity\"," +
-                    "    \"tags\": \"default category, something, else\"," +
-                    "    \"downloadURL\": \"https://google.de\"" +
-                    "  }" +
-                    "]";
-
-            // add Apps from string
-            // TODO: Use file rescource
-            addPepperApps(test);
 
             // process pending events
             processPrendingIntentResults();
@@ -153,12 +198,14 @@ public class AppController implements PepperAppController {
     private void addPepperApps(String data){
         try {
 
-            JSONArray jsonPepperApps = jsonPepperApps = new JSONArray(data);
-            ArrayList<PepperApp> appsArray = jsonToPepperApps(jsonPepperApps);
+            if( data != null ) {
+                JSONArray jsonPepperApps = new JSONArray(data);
+                ArrayList<PepperApp> appsArray = jsonToPepperApps(jsonPepperApps);
 
-            // save apps
-            for(PepperApp app : appsArray) {
-                addPepperApp(app);
+                // save apps
+                for (PepperApp app : appsArray) {
+                    addPepperApp(app);
+                }
             }
 
         } catch (JSONException e){
@@ -177,7 +224,7 @@ public class AppController implements PepperAppController {
         if( this.apps.containsKey(hash) ){
             // check for newer version
             PepperApp localApp = this.apps.get(hash);
-            if( !localApp.getCurrentVersion().equals(app.getLatestVersion()) ){
+            if( localApp.getCurrentVersion() < app.getLatestVersion() ){
                 app.setCurrentVersion( localApp.getCurrentVersion() );
                 this.updatableApps.put(hash, app);
             }
@@ -201,7 +248,7 @@ public class AppController implements PepperAppController {
         }
 
         // save data to file
-        File config = getFile(localAppsPath, localAppsFile);
+        File config = getFile(localConfig, localAppsFile);
         saveFileData(config, jsonArray.toString());
     }
 
@@ -246,6 +293,7 @@ public class AppController implements PepperAppController {
                 PepperApp app = new PepperApp(jsonObject.getString("name"));
                 app.setIntentPackage(jsonObject.getString("intentPackage"));
                 app.setIntentClass(jsonObject.getString("intentClass"));
+                // TODO
                 return app;
             }
         } catch (JSONException e){
@@ -264,27 +312,6 @@ public class AppController implements PepperAppController {
     @Override
     public HashMap<Integer, PepperApp> getUpdateablePepperApps() {
         return this.updatableApps;
-    }
-
-    /*
-     * Reading json data into @JSONArray from resource file.
-     */
-    private JSONArray readJSONfromRescource(int rescource){
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(activity.getResources().openRawResource(rescource), Charset.forName("UTF-8")));
-        String json = "";
-        String line = "";
-
-        try {
-            while ((line = bufferedReader.readLine()) != null) {
-                json += line;
-            }
-            bufferedReader.close();
-            return new JSONArray(json);
-        } catch (IOException | JSONException e){
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     private void notifyOnAppStart(PepperApp app){
