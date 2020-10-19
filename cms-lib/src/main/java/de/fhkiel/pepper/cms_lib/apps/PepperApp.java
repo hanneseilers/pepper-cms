@@ -16,6 +16,8 @@ public class PepperApp implements JSONObjectable {
     private String intentClass;
     private String currentVersion = "";
     private String latestVersion = "";
+    private String tags = "";
+    private String downloadURL = "";
 
     public PepperApp(String name){
         setName(name);
@@ -71,6 +73,26 @@ public class PepperApp implements JSONObjectable {
         this.intentClass = itentClass;
     }
 
+    @SuppressWarnings(value = "unsued")
+    public String getTags() {
+        return tags.trim();
+    }
+
+    @SuppressWarnings(value = "unsued")
+    public void setTags(String tags) {
+        this.tags = tags.trim();
+    }
+
+    @SuppressWarnings(value = "unsued")
+    public String getDownloadURL() {
+        return downloadURL;
+    }
+
+    @SuppressWarnings(value = "unsued")
+    public void setDownloadURL(String downloadURL) {
+        this.downloadURL = downloadURL;
+    }
+
     public String getIdentifier(){
         return getIntentPackage() + "/" + getIntentClass();
     }
@@ -96,6 +118,8 @@ public class PepperApp implements JSONObjectable {
             json.put("currentVersion", getCurrentVersion());
             json.put("latestVersion", getLatestVersion());
             json.put("hashcode", getHashCode());
+            json.put("tags", getTags());
+            json.put("downloadURL", getDownloadURL());
         } catch(JSONException e){
             e.printStackTrace();
         }

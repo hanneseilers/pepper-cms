@@ -3,6 +3,7 @@ package de.fhkiel.pepper.cms_lib.apps;
 import android.content.Intent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.fhkiel.pepper.cms_lib.users.User;
 
@@ -34,10 +35,29 @@ public interface PepperAppController {
     }
 
     /**
-     * Function to load available {@link PepperApp}
-     * Notifies all listeners, if apps loaded.
+     * Loads {@link PepperApp}s from Online rescources.
      */
     void loadPepperApps();
+
+    /**
+     * Gets
+     */
+    default void getPepperApps(){
+        getPepperApps(false);
+    }
+
+    /**
+     * Function to load available {@link PepperApp}
+     * Notifies all listeners, if apps loaded.
+     * @param load  If set to true, apps are also loaded from online rescource
+     */
+    void getPepperApps(boolean load);
+
+    /**
+     * Gets list of {@link PepperApp}s, ready for update.
+     * @return  {@link HashMap} of {@link PepperApp}s.
+     */
+    HashMap<Integer, PepperApp> getUpdateablePepperApps();
 
     default void addPepperAppInterfaceListener(PepperAppInterface listener){
         if(!pepperAppInterfaceListener.contains(listener)){

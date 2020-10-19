@@ -16,6 +16,7 @@ import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.fhkiel.pepper.cms_core.apps.AppController;
 import de.fhkiel.pepper.cms_lib.apps.PepperApp;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
     private static final String TAG = MainActivity.class.getName();
 
     private PepperAppController appController;
-    private ArrayList<PepperApp> pepperApps = new ArrayList<>();
+    private HashMap<Integer, PepperApp> pepperApps = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
 
         // after loading ui, get available apps
         Log.i(TAG, "loading apps");
-        appController.loadPepperApps();
+        appController.getPepperApps(true);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
         super.onDestroy();
     }
 
-    private void showAppsUi(ArrayList<PepperApp> apps){
+    private void showAppsUi(HashMap<Integer, PepperApp> apps){
         runOnUiThread(() -> {
 
             // TODO: handle loadig apps into ui
@@ -75,7 +76,8 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
             // simple example
             GridLayout layout = findViewById(R.id.gridApps);
             layout.removeAllViewsInLayout();
-            for(PepperApp app : apps){
+            for(int i : apps.keySet()){
+                PepperApp app = apps.get(i);
                 Button button = new Button(this);
                 button.setText(app.getName());
                 button.setOnClickListener(view -> {
@@ -101,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
      * @param apps List of loaded available {@link PepperApp}s
      */
     @Override
-    public void onPepperAppsLoaded(ArrayList<PepperApp> apps) {
+    public void onPepperAppsLoaded(HashMap<Integer, PepperApp> apps) {
         Log.i(TAG, "Apps loaded " + apps.size());
         this.pepperApps = apps;
         showAppsUi(this.pepperApps);
