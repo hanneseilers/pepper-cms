@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayout;
 import android.util.Log;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -80,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
                 PepperApp app = apps.get(i);
                 Button button = new Button(this);
                 button.setText(app.getName());
+                button.setLayoutParams( new GridLayout.LayoutParams( new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                        ) ) );
                 button.setOnClickListener(view -> {
 
                     // creating test user
