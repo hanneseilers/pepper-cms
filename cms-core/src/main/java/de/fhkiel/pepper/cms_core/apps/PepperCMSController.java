@@ -73,6 +73,10 @@ public class PepperCMSController implements PepperCMSControllerInterface {
         return installableApps;
     }
 
+    public AppController getAppController() {
+        return appController;
+    }
+
     @Override
     public boolean startCMS(boolean useOnline, boolean isRestart){
 
