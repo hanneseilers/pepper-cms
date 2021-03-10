@@ -1,30 +1,38 @@
 package de.fhkiel.pepper.cms;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.gridlayout.widget.GridLayout;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
+import com.aldebaran.qi.sdk.design.activity.RobotActivity;
+import com.aldebaran.qi.sdk.design.activity.conversationstatus.SpeechBarDisplayStrategy;
 
-import java.util.ArrayList;
+import java.net.MalformedURLException;
+import java.util.HashMap;
 
-import de.fhkiel.pepper.cms_core.apps.AppController;
+import de.fhkiel.pepper.cms_core.apps.PepperCMSController;
 import de.fhkiel.pepper.cms_lib.apps.PepperApp;
-import de.fhkiel.pepper.cms_lib.apps.PepperAppController;
+import de.fhkiel.pepper.cms_lib.apps.PepperCMSControllerInterface;
 import de.fhkiel.pepper.cms_lib.apps.PepperAppInterface;
+import de.fhkiel.pepper.cms_lib.repository.PepperCMSRepository;
 import de.fhkiel.pepper.cms_lib.users.User;
 
-public class MainActivity extends AppCompatActivity implements RobotLifecycleCallbacks, PepperAppInterface {
+public class MainActivity extends RobotActivity implements RobotLifecycleCallbacks, PepperAppInterface {
     private static final String TAG = MainActivity.class.getName();
 
-    private PepperAppController appController;
-    private ArrayList<PepperApp> pepperApps = new ArrayList<>();
+    private PepperCMSControllerInterface pepperCMS;
+    private HashMap<Integer, PepperApp> pepperApps = new HashMap<>();
+
+    private boolean tryRepository = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +40,12 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
         Log.d(TAG, "app started");
         QiSDK.register(this, this);
 
+        // disable big speech bar
+        setSpeechBarDisplayStrategy(SpeechBarDisplayStrategy.IMMERSIVE);
+
         // Creating cms app controller
-        appController = new AppController(getBaseContext());
-        appController.addPepperAppInterfaceListener(this);
+        pepperCMS = new PepperCMSController(this);
+        pepperCMS.addPepperAppInterfaceListener(this);
         Log.d(TAG, "app controller created");
 
         // ---- UI LOGIC BEGIN ----
@@ -46,7 +57,20 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
 
         // after loading ui, get available apps
         Log.i(TAG, "loading apps");
-        appController.loadPepperApps();
+        new Thread(() -> {
+            toast( getString(R.string.toastLoadingApps) );
+            pepperCMS.startCMS(true );
+        }).start();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(this.pepperCMS != null){
+            this.pepperCMS.onActivityResult(requestCode, resultCode, data);
+        } else {
+            Log.e(TAG, "cannot give activity result to app controler. null found!");
+        }
     }
 
     @Override
@@ -55,19 +79,30 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
         super.onDestroy();
     }
 
-    private void showAppsUi(ArrayList<PepperApp> apps){
+    private void showAppsUi(HashMap<Integer, PepperApp> apps){
         runOnUiThread(() -> {
 
             // TODO: handle loadig apps into ui
 
             // simple example
-            LinearLayout layout = (LinearLayout) findViewById(R.id.linearLayout);
+            GridLayout layout = findViewById(R.id.gridApps);
             layout.removeAllViewsInLayout();
-            for(PepperApp app : apps){
+            for(int i : apps.keySet()){
+                PepperApp app = apps.get(i);
                 Button button = new Button(this);
                 button.setText(app.getName());
                 button.setOnClickListener(view -> {
-                    appController.startPepperApp(app, new User());
+
+                    // creating test user
+                    // TODO: change
+                    Switch swDefaultUser = findViewById(R.id.swDefaultUser);
+                    User user = this.pepperCMS.getAuthenticatedUser();
+                    if(swDefaultUser.isChecked()) {
+                        Log.w(TAG, "Use default user for intent!");
+                        user = this.pepperCMS.getDefaultUser();
+                    }
+                    pepperCMS.startPepperApp(app, user);
+
                 });
                 layout.addView(button);
             }
@@ -75,15 +110,52 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
         });
     }
     /**
-     * Callback, {@link PepperAppController} uses, if {@link PepperApp}s are loaded.
+     * Callback, {@link PepperCMSControllerInterface} uses, if {@link PepperApp}s are loaded.
      *
      * @param apps List of loaded available {@link PepperApp}s
      */
     @Override
-    public void onPepperAppsLoaded(ArrayList<PepperApp> apps) {
-        Log.i(TAG, "Apps loaded " + apps.size());
+    public void onPepperAppsLoaded(HashMap<Integer, PepperApp> apps, boolean isRemote) {
+        Log.i(TAG, "Apps loaded: " + apps.size());
         this.pepperApps = apps;
-        showAppsUi(this.pepperApps);
+
+        if( apps.size() <= 0 ){
+
+            toast( getString(R.string.toastNoApps) );
+            Log.d(TAG, "\t> no apps, use repository: " + !tryRepository);
+            if(!isRemote) {
+                // TODO: add online source from user input
+                addTestRepository();
+            }
+
+        } else {
+            // show apps
+            toast( getString(R.string.toastAppsLoaded) );
+            showAppsUi(this.pepperApps);
+        }
+    }
+
+    void addTestRepository(){
+        if(!tryRepository) {
+            try {
+
+                Log.w(TAG, "\t> No apps found! Add new repository.");
+                String repositoryUrl = "https://demo.repos.cms.robotikinderpflege.de";
+                tryRepository = true;
+                pepperCMS.addRepository(PepperCMSRepository.createSimpleRepository(repositoryUrl));
+                Log.d(TAG, "\t> new repository size: " + pepperCMS.getRepositories().size());
+
+                // restart cms
+                new Thread(() -> {
+                    Log.d(TAG, "\t> restarting CMS ...");
+                    Log.i(TAG, "-------------------------------------------------");
+                    pepperCMS.retstartCMS();
+                }).start();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                Log.w(TAG, "\t> No valid URL: " + e);
+            }
+        }
     }
 
     /**
@@ -125,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
      */
     @Override
     public void onRobotFocusGained(QiContext qiContext) {
-        Log.d(TAG, "robot focus gained");
+        Log.d(TAG, "Robot focus gained.");
         runOnUiThread(() -> {
             findViewById(R.id.layoutActivityMain).invalidate();
         }); // redraw whole layout if focus comes back
@@ -136,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
      */
     @Override
     public void onRobotFocusLost() {
-        Log.d(TAG, "robot focus lost");
+        Log.e(TAG, "Robot focus lost!");
     }
 
     /**
@@ -145,7 +217,9 @@ public class MainActivity extends AppCompatActivity implements RobotLifecycleCal
      * @param reason the reason
      */
     @Override
-    public void onRobotFocusRefused(String reason) {}
+    public void onRobotFocusRefused(String reason) {
+        Log.w(TAG, "Robot focus refused!");
+    }
 
     /**
      * Called to show a toast.
