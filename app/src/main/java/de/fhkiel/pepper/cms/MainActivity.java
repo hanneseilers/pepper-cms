@@ -121,7 +121,7 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
         if( apps.size() <= 0 ){
 
             toast( getString(R.string.toastNoApps) );
-            Log.d(TAG, "\t> no apps, use repository: " + !tryRepository);
+            Log.d(TAG, "\t> no apps, use repository: " + !tryRepository + " : " + !isRemote);
             if(!isRemote) {
                 // TODO: add online source from user input
                 addTestRepository();

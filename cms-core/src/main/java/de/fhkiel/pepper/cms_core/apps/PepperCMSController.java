@@ -252,7 +252,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
             //processPendingIntentResults();
 
             // notify listener
-            notifyOnAppsLoadedListener(this.apps, true);
+            notifyOnAppsLoadedListener(this.apps, false);
 
         }).start();
     }
@@ -264,7 +264,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
      */
     private void notifyOnAppsLoadedListener(HashMap<String, PepperApp> apps, boolean isRemote){
         for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener) {
-            Log.d(TAG, "\t> calling callbacks");
+            Log.d(TAG, "\t> calling apps loaded callbacks");
             listener.onPepperAppsLoaded(apps, isRemote);
         }
     }
@@ -275,7 +275,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
      */
     private void notifyOnAppsUpdatetableListener(HashMap<String, PepperApp> apps){
         for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener) {
-            Log.d(TAG, "\t> calling callbacks");
+            Log.d(TAG, "\t> calling apps updateable callbacks");
             for(PepperApp app : apps.values()){
                 listener.onAppUpdateAvailable(app);
             }
@@ -322,7 +322,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
                 // add app to updateable list
                 app.setCurrentVersion(localApp.getCurrentVersion());
                 this.updatableApps.put(hash, app);
-                Log.w(TAG, "\t\t> Update for app " + hash + " available");
+                Log.d(TAG, "\t\t> Update for app " + hash + " available");
             } else {
                 Log.d(TAG,"\t\t> app up to date");
             }

@@ -272,7 +272,7 @@ public class PepperCMSRepository implements JSONObjectable {
 
                                 URL directoryURL = new URL(getRepositoryURL(), directory + "app.json");
                                 JSONArray appArray = PepperCMSRemote.getArray(directoryURL);
-                                Log.d(TAG, "found array size = " + appArray.length());
+                                Log.d(TAG, "\t\t>found " + appArray.length() + " apps");
 
                                 // crawling apps
                                 this.apps.clear();
@@ -281,7 +281,7 @@ public class PepperCMSRepository implements JSONObjectable {
                                     PepperApp app = PepperApp.fromJson(jsonAppData);
 
                                     if(app != null){
-                                        Log.w(TAG, "\t> added");
+                                        Log.d(TAG, "\t\t> app added");
                                         this.apps.add(app);
                                     } else{
                                         Log.e(TAG, "Cannot parse apps json data!");
