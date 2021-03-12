@@ -6,4 +6,13 @@
     <string name="toastLoadingApps">Loading apps</string>
     <string name="toastAppsLoaded">Apps loaded</string>
     <string name="toastNoApps">No Apps found!</string>
+
+    <string name="placeholder_robot_name">Pepper</string>
+    <string name="placeholder_button_text">Button</string>
+
+    <string name="header_home">Home</string>
+
+    <string name="btnOverviewApps">Apps</string>
+    <string name="btnOverviewUsers">Benutzer*innen</string>
+    <string name="btnOverviewSettings">Einstellungen</string>
 </resources>

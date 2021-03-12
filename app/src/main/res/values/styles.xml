@@ -4,7 +4,63 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorPrimaryAccent</item>
+    </style>
+
+    <style name="LinearHorizontalButtonPaneLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="ButtonPaneLayoutButtonBase" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:paddingStart">30dp</item>
+        <item name="android:text">@string/placeholder_button_text</item>
+        <item name="android:textSize">30dp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:background">@color/colorButtonDefault</item>
+    </style>
+
+    <style name="ButtonPrimary1" parent="ButtonPaneLayoutButtonBase">
+        <item name="android:background">@color/colorButtonPrimary1</item>
+        <item name="android:textColor">@color/colorButtonPrimary1Accent</item>
+    </style>
+
+    <style name="ButtonPrimary2" parent="ButtonPaneLayoutButtonBase">
+        <item name="android:background">@color/colorButtonPrimary2</item>
+        <item name="android:textColor">@color/colorButtonPrimary2Accent</item>
+    </style>
+
+    <style name="ButtonDanger" parent="ButtonPaneLayoutButtonBase">
+        <item name="android:background">@color/colorButtonDanger</item>
+        <item name="android:textColor">@color/colorButtonDangerAccent</item>
+    </style>
+
+    <style name="ButtonConfirm" parent="ButtonPaneLayoutButtonBase">
+        <item name="android:background">@color/colorButtonConfirm</item>
+        <item name="android:textColor">@color/colorButtonConfirmAccent</item>
+    </style>
+
+    <style name="ButtonControl" parent="ButtonPaneLayoutButtonBase">
+        <item name="android:background">@color/colorButtonControl</item>
+        <item name="android:textColor">@color/colorButtonControlAccent</item>
+        <item name="android:layout_height">80dp</item>
+    </style>
+
+    <style name="HeaderStyle">
+        <item name="android:background">@color/colorSecondary</item>
+        <item name="android:textColor">@color/colorSecondaryAccent</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+    <style name="HeaderRobotNameStyle" parent="HeaderStyle">
+        <item name="android:background">@drawable/header_robot_name</item>
     </style>
 
 </resources>
