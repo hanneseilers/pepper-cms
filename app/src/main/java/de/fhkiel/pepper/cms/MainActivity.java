@@ -127,7 +127,7 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
                 addTestRepository();
             }
 
-        } else {
+        } else if(!isRemote) {
             // show apps
             toast( getString(R.string.toastAppsLoaded) );
             showAppsUi(this.pepperApps);

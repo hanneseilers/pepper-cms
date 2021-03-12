@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#2962ff</color>
+    <color name="colorPrimaryDark">#0039cb</color>
+    <color name="colorPrimaryAccent">#ffffff</color>
+
+    <color name="colorSecondary">#bbdefb</color>
+    <color name="colorSecondaryDark">#8aacc8</color>
+    <color name="colorSecondaryAccent">#000000</color>
+
+    <color name="colorButtonDefault">#4dd0e1</color>
+
+    <color name="colorButtonPrimary1">#aeea00</color>
+    <color name="colorButtonPrimary1Accent">#000000</color>
+
+    <color name="colorButtonPrimary2">#6200ea</color>
+    <color name="colorButtonPrimary2Accent">#ffffff</color>
+
+    <color name="colorButtonDanger">#dd2c00</color>
+    <color name="colorButtonDangerAccent">#000000</color>
+
+    <color name="colorButtonConfirm">#00c853</color>
+    <color name="colorButtonConfirmAccent">#000000</color>
+
+    <color name="colorButtonControl">#eceff1</color>
+    <color name="colorButtonControlAccent">#000000</color>
+
 </resources>
