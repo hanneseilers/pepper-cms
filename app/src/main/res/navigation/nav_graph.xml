@@ -8,5 +8,14 @@
         android:id="@+id/fragmentOverview"
         android:name="de.fhkiel.pepper.cms.FragmentOverview"
         android:label="fragment_overview"
-        tools:layout="@layout/fragment_overview" />
+        tools:layout="@layout/fragment_overview" >
+        <action
+            android:id="@+id/action_fragmentOverview_to_fragmentSettingsOverview2"
+            app:destination="@id/fragmentSettingsOverview2" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentSettingsOverview2"
+        android:name="de.fhkiel.pepper.cms.FragmentSettingsOverview"
+        android:label="fragment_settings_overview"
+        tools:layout="@layout/fragment_settings_overview" />
 </navigation>
