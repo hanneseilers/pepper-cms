@@ -57,19 +57,6 @@
 
         <LinearLayout style="@style/LinearLayout_Horizontal_ButtonPane">
 
-            <LinearLayout
-                android:id="@+id/btnUsers"
-                style="@style/Linearlayout_ButtonPrimary2">
-
-                <ImageView
-                    style="@style/ButtonImage"
-                    android:src="@drawable/icon_users" />
-
-                <Button
-                    style="@style/ButtonPaneBaseLight"
-                    android:text="@string/btnOverviewUsers" />
-            </LinearLayout>
-
         </LinearLayout>
 
         <LinearLayout
@@ -87,6 +74,20 @@
                 <Button
                     style="@style/ButtonPaneControl"
                     android:text="@string/btnOverviewSettings" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnUsers"
+                style="@style/Linearlayout_ButtonControl">
+
+                <ImageView
+                    style="@style/ButtonImage"
+                    android:src="@drawable/icon_users" />
+
+                <Button
+                    style="@style/ButtonPaneControl"
+                    android:text="@string/btnOverviewUsers" />
             </LinearLayout>
 
         </LinearLayout>
