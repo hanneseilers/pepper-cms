@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">Pepper CMS</string>
     <string name="apps_available">Available Apps:</string>
     <string name="user_use_sample">Use default user</string>
@@ -11,8 +12,18 @@
     <string name="placeholder_button_text">Button</string>
 
     <string name="header_home">Home</string>
+    <string name="header_settings_overview">Einstellungen</string>
 
     <string name="btnOverviewApps">Apps</string>
     <string name="btnOverviewUsers">Benutzer*innen</string>
     <string name="btnOverviewSettings">Einstellungen</string>
+
+    <string name="btnSettingsOverviewAppsInstallable">\? Neue Apps</string>
+    <string name="btnSettingsOverviewAppsUpdateable">\? App Updates</string>
+    <string name="btnSettingsOverviewAppsInstalled">\? Apps</string>
+    <string name="btnSettingsOverviewUserAdd">Benutzer hinzufügen</string>
+    <string name="btnSettingsOverviewUserRemove">Benutzer entfernen</string>
+    <string name="btnSettingsOverviewRepositoryAdd">Reposiory hinzufügen</string>
+    <string name="btnSettingsOverviewRepositoryRemove">Repository entfernen</string>
+
 </resources>
