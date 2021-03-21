@@ -22,41 +22,45 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        style="@style/LinearLayout_Base_ButtonPane"
+        style="@style/LinearLayout_ButtonPane_Base"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtOverviewHeader">
 
-        <LinearLayout style="@style/LinearLayout_Horizontal_ButtonPane">
+        <LinearLayout style="@style/LinearLayout_ButtonPane">
 
             <LinearLayout
                 android:id="@+id/btnApps"
                 style="@style/Linearlayout_ButtonPrimary1">
+
                 <ImageView
                     style="@style/ButtonImage"
-                    android:src="@drawable/icon_apps" />
+                    android:src="@drawable/icon_apps_dark" />
+
                 <Button
-                    style="@style/ButtonPaneBaseLight"
+                    style="@style/ButtonPaneBase"
                     android:text="@string/btnOverviewApps" />
             </LinearLayout>
 
         </LinearLayout>
 
-        <LinearLayout style="@style/LinearLayout_Horizontal_ButtonPane">
+        <LinearLayout style="@style/LinearLayout_ButtonPane">
 
         </LinearLayout>
 
         <LinearLayout
-            style="@style/LinearLayout_Horizontal_ButtonPane"
+            style="@style/LinearLayout_ButtonPane"
             android:gravity="bottom">
 
             <LinearLayout
                 android:id="@+id/btnSettings"
                 style="@style/Linearlayout_ButtonControl">
+
                 <ImageView
                     style="@style/ButtonImageSmall"
                     android:src="@drawable/icon_settings_dark" />
+
                 <Button
                     style="@style/ButtonPaneControl"
                     android:text="@string/btnOverviewSettings" />
@@ -65,9 +69,11 @@
             <LinearLayout
                 android:id="@+id/btnUsers"
                 style="@style/Linearlayout_ButtonControl">
+
                 <ImageView
                     style="@style/ButtonImage"
-                    android:src="@drawable/icon_users" />
+                    android:src="@drawable/icon_users_dark" />
+
                 <Button
                     style="@style/ButtonPaneControl"
                     android:text="@string/btnOverviewUsers" />

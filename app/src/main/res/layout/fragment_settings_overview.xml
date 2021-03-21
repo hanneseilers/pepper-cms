@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context=".FragmentSettingsOverview">
 
     <TextView
@@ -22,86 +23,95 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        style="@style/LinearLayout_Base_ButtonPane"
+        style="@style/LinearLayout_ButtonPane_Base"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtSettingsOverviewHeader">
 
-        <LinearLayout
-            style="@style/LinearLayout_Horizontal_ButtonPane">
+        <LinearLayout style="@style/LinearLayout_ButtonPane">
 
-            <LinearLayout
-                style="@style/Linearlayout_ButtonPrimary1">
+            <LinearLayout style="@style/Linearlayout_ButtonPrimary1">
+
                 <ImageView
                     style="@style/ButtonImage"
-                    android:src="@drawable/icon_apps" />
+                    android:src="@drawable/icon_apps_dark" />
+
                 <Button
                     style="@style/ButtonPaneBase"
                     android:text="@string/btnSettingsOverviewAppsInstalled" />
             </LinearLayout>
 
-            <LinearLayout
-                style="@style/Linearlayout_ButtonPrimary2">
+            <LinearLayout style="@style/Linearlayout_ButtonPrimary2">
+
                 <ImageView
                     style="@style/ButtonImage"
-                    android:src="@drawable/icon_apps" />
+                    android:src="@drawable/icon_apps_light" />
+
                 <Button
                     style="@style/ButtonPaneBaseLight"
                     android:text="@string/btnSettingsOverviewAppsInstallable" />
             </LinearLayout>
 
-            <LinearLayout
-                style="@style/Linearlayout_ButtonPrimary2">
+            <LinearLayout style="@style/Linearlayout_ButtonPrimary2">
+
                 <ImageView
                     style="@style/ButtonImage"
-                    android:src="@drawable/icon_apps" />
+                    android:src="@drawable/icon_apps_light" />
+
                 <Button
                     style="@style/ButtonPaneBaseLight"
                     android:text="@string/btnSettingsOverviewAppsUpdateable" />
             </LinearLayout>
 
         </LinearLayout>
-        <LinearLayout style="@style/LinearLayout_Horizontal_ButtonPane">
 
-            <LinearLayout
-                style="@style/Linearlayout_ButtonPrimary2">
-                <ImageView
-                    style="@style/ButtonImage"
-                    android:src="@drawable/icon_users" />
+        <LinearLayout style="@style/LinearLayout_ButtonPane">
+
+            <LinearLayout style="@style/Linearlayout_ButtonConfirm">
+
+
+                    <ImageView
+                        style="@style/ButtonImage"
+                        android:src="@drawable/icon_users_dark" />
+
                 <Button
-                    style="@style/ButtonPaneBaseLight"
+                    style="@style/ButtonPaneBase"
                     android:text="@string/btnSettingsOverviewUserAdd" />
             </LinearLayout>
 
-            <LinearLayout
-                style="@style/Linearlayout_ButtonPrimary2">
+            <LinearLayout style="@style/Linearlayout_ButtonDanger">
+
                 <ImageView
                     style="@style/ButtonImage"
-                    android:src="@drawable/icon_users" />
+                    android:src="@drawable/icon_users_dark" />
+
                 <Button
-                    style="@style/ButtonPaneBaseLight"
+                    style="@style/ButtonPaneBase"
                     android:text="@string/btnSettingsOverviewUserRemove" />
             </LinearLayout>
 
         </LinearLayout>
-        <LinearLayout style="@style/LinearLayout_Horizontal_ButtonPane">
 
-            <LinearLayout
-                style="@style/Linearlayout_ButtonControl">
+        <LinearLayout style="@style/LinearLayout_ButtonPane">
+
+            <LinearLayout style="@style/Linearlayout_ButtonControl">
+
                 <ImageView
                     style="@style/ButtonImage"
                     android:src="@drawable/icon_repository_dark" />
+
                 <Button
                     style="@style/ButtonPaneBase"
                     android:text="@string/btnSettingsOverviewRepositoryAdd" />
             </LinearLayout>
 
-            <LinearLayout
-                style="@style/Linearlayout_ButtonControl">
+            <LinearLayout style="@style/Linearlayout_ButtonControl">
+
                 <ImageView
                     style="@style/ButtonImage"
                     android:src="@drawable/icon_repository_dark" />
+
                 <Button
                     style="@style/ButtonPaneBase"
                     android:text="@string/btnSettingsOverviewRepositoryRemove" />
