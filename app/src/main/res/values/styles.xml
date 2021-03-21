@@ -8,18 +8,18 @@
 
 
     <!--  Button Pane Layouts -->
-    <style name="LinearLayout_Base_ButtonPane">
+    <style name="LinearLayout_ButtonPane_Base">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">0dp</item>
         <item name="android:layout_margin">8dp</item>
-        <item name="android:orientation">vertical</item>
+        <item name="android:orientation">horizontal</item>
     </style>
 
     <!-- Button base layouts -->
-    <style name="LinearLayout_Horizontal_ButtonPane">
+    <style name="LinearLayout_ButtonPane">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:orientation">horizontal</item>
+        <item name="android:orientation">vertical</item>
         <item name="android:layout_weight">1</item>
     </style>
 
