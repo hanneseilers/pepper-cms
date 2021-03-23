@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.gridlayout.widget.GridLayout;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Switch;
@@ -32,6 +35,8 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
     private PepperCMSControllerInterface pepperCMS;
     private HashMap<String, PepperApp> pepperApps = new HashMap<>();
+    private NavHostFragment navHostFragment;
+    private NavController navController;
 
     private boolean tryRepository = false;
 
@@ -43,6 +48,10 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
         // disable big speech bar
         setSpeechBarDisplayStrategy(SpeechBarDisplayStrategy.IMMERSIVE);
+
+        // get Nav Host Fragment
+        navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_container);
+        navController = navHostFragment.getNavController();
 
         // Creating cms app controller
         pepperCMS = new PepperCMSController(this);
