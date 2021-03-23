@@ -37,6 +37,41 @@ public interface PepperCMSControllerInterface {
     boolean retstartCMS();
 
     /**
+     * Function to add an start a function as new thread
+     * @param function  {@link Runnable} function to execute
+     * @param runOnUi   Set true if to run on ui thread. otherwise, false.
+     * @return          New running Thread
+     */
+    Thread addAndStart(Runnable function, boolean runOnUi);
+
+    /**
+     * Function to add an start a function as new thread. Creates a normal thread by default.
+     * @param function  {@link Runnable} function to execute
+     * @return          New running Thread
+     */
+    default Thread addAndStart(Runnable function){
+        return addAndStart(function, false);
+    }
+
+    /**
+     * Function to get all apps available.
+     * @return  HashMap of {@link PepperApp}s, containing apps hashcode as key.
+     */
+    HashMap<String, PepperApp> getApps();
+
+    /**
+     * Function to get all apps, where an update is available.
+     * @return  HashMap of {@link PepperApp}s, containing apps hashcode as key.
+     */
+    HashMap<String, PepperApp> getUpdatableApps();
+
+    /**
+     * Function to get all apps that can be newly installed.
+     * @return  HashMap of {@link PepperApp}s, Ccntaining apps hashcode as key.
+     */
+    HashMap<String, PepperApp> getInstallableApps();
+
+    /**
      * Starts a {@link PepperApp} via {@link android.content.Intent}.
      *
      * @param app {@link PepperApp} to start.
@@ -55,22 +90,6 @@ public interface PepperCMSControllerInterface {
         return startPepperApp(app, null);
     }
 
-    /**
-     * Loads {@link PepperApp}s from local file rescources.
-     */
-    void loadLocalPepperApps();
-
-    /**
-     * Loads {@link PepperApp}s from online source
-     */
-    void loadRemotePepperApps() throws IOException;
-
-    /**
-     * Function to load available {@link PepperApp}
-     * Notifies all listeners, if apps loaded.
-     * @param load  If set to true, apps are also loaded from online rescource
-     */
-    void getPepperApps(boolean load);
 
     /**
      * Gets list of {@link PepperApp}s, ready for update.

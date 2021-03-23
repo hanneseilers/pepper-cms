@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,23 +57,28 @@ public class PepperCMSController implements PepperCMSControllerInterface {
     private FileDescriptor appDataFile = null;
     private HashMap<String, Intent>  pendingIntentResults = new HashMap<>();
     private ArrayList<PepperCMSRepository> repositories = new ArrayList<>();
+    private ArrayList<Thread> pendingThreads = new ArrayList<>();
 
     private User autheticatedUser;
 
     public PepperCMSController(Activity activity) { this.activity = activity; }
 
+    @Override
     public HashMap<String, PepperApp> getApps() {
         return apps;
     }
 
+    @Override
     public HashMap<String, PepperApp> getUpdatableApps() {
         return updatableApps;
     }
 
+    @Override
     public HashMap<String, PepperApp> getInstallableApps() {
         return installableApps;
     }
 
+    // TODO: Check if needed
     public AppController getAppController() {
         return appController;
     }
@@ -124,6 +130,70 @@ public class PepperCMSController implements PepperCMSControllerInterface {
     }
 
     @Override
+    public Thread addAndStart(Runnable function, boolean runOnUi) {
+        // use surrounding thread for handling the function to run
+        Thread thread = new Thread(() -> {
+
+            // add thread to waiting threads
+            Thread me = Thread.currentThread();
+            pendingThreads.add(me);
+            Log.d(TAG, "new thread " + me.getId() + " started.");
+            notifyOnPendingTaskChangedListener(Thread.currentThread());
+
+            // create helper Runnable
+            PepperCMSRunnable runnable = new PepperCMSRunnable(function);
+
+            // execute Runnable
+            synchronized (runnable) {
+                if (runOnUi && activity != null) {
+                    this.activity.runOnUiThread(runnable);
+                } else {
+                    runnable.run();
+                }
+
+                // wait for Runnable to finish
+                try {
+                    if( !runnable.finished ) {
+                        runnable.wait();
+                    }
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "thread " + me.getId() + " was interrupted!");
+                }
+
+            }
+
+            // remove this thread from pending list
+            Log.d(TAG, "thread " + me.getId() + " finished.");
+            pendingThreads.remove(me);
+            notifyOnPendingTaskChangedListener();
+
+        });
+        thread.start();
+        return thread;
+    }
+
+    /**
+     * Notifies all {@link PepperAppInterface} listeners on change of pending tasks.
+     * @param newThread newly created {@link Thread} if new thread started, null otherwise.
+     */
+    private void notifyOnPendingTaskChangedListener(Thread newThread){
+        for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener){
+            Log.d(TAG, "\t> notify pending tasks listeners.");
+            new Thread(() -> {
+                listener.onPendingTasksChanged(this.pendingThreads, newThread);
+            }).start();
+        }
+    }
+
+    /**
+     * Notifies all {@link PepperAppInterface} listeners on change of pending tasks.
+     * Call if only to notifiy, without newly created task
+     */
+    private void notifyOnPendingTaskChangedListener(){{
+        notifyOnPendingTaskChangedListener(null);
+    }}
+
+    @Override
     public boolean startPepperApp(PepperApp app, User user) {
         Log.d(TAG, "trying to start:" + app.getName() + " - " + app.getIntentPackage()+ "/" + app.getIntentClass());
 
@@ -159,8 +229,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
         return true;
     }
 
-    @Override
-    public void loadLocalPepperApps() {
+    private void loadLocalPepperApps() {
         Log.d(TAG, "Loading Pepper apps from local rescource");
 
         // check if on ui thread!
@@ -176,38 +245,64 @@ public class PepperCMSController implements PepperCMSControllerInterface {
         addPepperApps(data);
     }
 
-    @Override
-    public void loadRemotePepperApps() {
+    private void loadRemotePepperApps() {
         Log.d(TAG, "\t> Loading Pepper apps from online rescources");
 
         loadRepositories(repository -> {
-            repository.testURL(isValid -> {
-                if( isValid ) {
-                    Log.d(TAG, "Repository " + repository.getRepositoryURL() + " is valid.");
-                    
-                    try {
 
-                        ArrayList<PepperApp> repositoryApps = repository.getPepperApps();
-                        if(repositoryApps != null) {
-                            Log.d(TAG, "found " + repositoryApps.size() + " apps");
-                            for(PepperApp app : repositoryApps){
-                                addPepperApp(app);
+            addAndStart(() -> {
+
+                Thread thread = repository.testURL(isValid -> {
+                    if( isValid ) {
+                        Log.d(TAG, "Repository " + repository.getRepositoryURL() + " is valid.");
+
+                        try {
+
+                            ArrayList<PepperApp> repositoryApps = repository.getPepperApps();
+                            if(repositoryApps != null) {
+                                Log.d(TAG, "found " + repositoryApps.size() + " apps");
+                                for(PepperApp app : repositoryApps){
+                                    addPepperApp(app);
+                                }
                             }
+
+                            // notify listener
+                            notifyOnAppsLoadedListener(this.installableApps, true);
+                            notifyOnAppsUpdatetableListener(this.updatableApps);
+
+                        } catch (MalformedURLException e){
+                            Log.e(TAG, "Malformed repository url: " + e);
+                            notifyOnRepositoryError(repository, e);
                         }
 
-                        // notify listener
-                        notifyOnAppsLoadedListener(this.installableApps, true);
-                        notifyOnAppsUpdatetableListener(this.updatableApps);
-
-                    } catch (MalformedURLException e){
-                        Log.e(TAG, "Malformed repository url: " + e);
+                    } else {
+                        Log.e(TAG, "Repository \" + reprository.getRepositoryURL() + \" is NOT valid!");
                     }
+                });
 
-                } else {
-                    Log.e(TAG, "Repository \" + reprository.getRepositoryURL() + \" is NOT valid!");
+                // wait for test to finish
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    Log.e(TAG, e.getMessage());
                 }
             });
+
         });
+    }
+
+    /**
+     * Notifies repository error listeners
+     * @param repository
+     * @param e
+     */
+    private void notifyOnRepositoryError(PepperCMSRepository repository, Exception e){
+        for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener){
+            Log.d(TAG, "\t> notify listener on error");
+            new Thread(() -> {
+                listener.onRepositoryError(repository, e);
+            }).start();
+        }
     }
 
     /**
@@ -228,33 +323,29 @@ public class PepperCMSController implements PepperCMSControllerInterface {
      *
      * @param load If set to true, apps are also loaded from online rescource
      */
-    @Override
-    public void getPepperApps(boolean load) {
+    private void getPepperApps(boolean load) {
         Log.d(TAG, "getting Pepper apps.");
         this.apps.clear();
         this.updatableApps.clear();
 
-        new Thread(() -> {
+        // get local apps
+        //loadLocalPepperApps();
 
-            // get local apps
-            //loadLocalPepperApps();
+        // get online recources
+        Log.d(TAG, "\t> use oline sources: " + load);
+        if (load){
+            loadRemotePepperApps();
+        }
 
-            // get online recources
-            Log.d(TAG, "\t> use oline sources: " + load);
-            if (load){
-                loadRemotePepperApps();
-            }
+        // save results
+        //savePepperApps();
 
-            // save results
-            //savePepperApps();
+        // process pending events
+        //processPendingIntentResults();
 
-            // process pending events
-            //processPendingIntentResults();
+        // notify listener
+        notifyOnAppsLoadedListener(this.apps, false);
 
-            // notify listener
-            notifyOnAppsLoadedListener(this.apps, false);
-
-        }).start();
     }
 
     /**
@@ -265,7 +356,9 @@ public class PepperCMSController implements PepperCMSControllerInterface {
     private void notifyOnAppsLoadedListener(HashMap<String, PepperApp> apps, boolean isRemote){
         for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener) {
             Log.d(TAG, "\t> calling apps loaded callbacks");
-            listener.onPepperAppsLoaded(apps, isRemote);
+            new Thread(() -> {
+                listener.onPepperAppsLoaded(apps, isRemote);
+            }).start();
         }
     }
 
@@ -277,7 +370,9 @@ public class PepperCMSController implements PepperCMSControllerInterface {
         for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener) {
             Log.d(TAG, "\t> calling apps updateable callbacks");
             for(PepperApp app : apps.values()){
-                listener.onAppUpdateAvailable(app);
+                new Thread(() -> {
+                    listener.onAppUpdateAvailable(app);
+                }).start();
             }
         }
     }

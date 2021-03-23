@@ -142,15 +142,16 @@ public class PepperCMSRepository implements JSONObjectable {
     /**
      * Tests if repository {@link URL} is valid.
      */
-    public void testURL(PepperCMSRepositoryIsAliveCallable callback){
+    public Thread testURL(PepperCMSRepositoryIsAliveCallable callback){
         Log.d(TAG, "\t> testing URL is in progress.");
 
-        new Thread(() -> {
+        Thread thread = new Thread(() -> {
             isValid = isURLAlive(getRepositoryURL());
             isValidChecked = true;
             callback.onRepositoryTested(isValid);
-        }).start();
-
+        });
+        thread.start();
+        return thread;
     }
 
     /**

@@ -17,6 +17,7 @@ import com.aldebaran.qi.sdk.design.activity.RobotActivity;
 import com.aldebaran.qi.sdk.design.activity.conversationstatus.SpeechBarDisplayStrategy;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.fhkiel.pepper.cms_core.apps.PepperCMSController;
@@ -84,8 +85,6 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
             // TODO: handle loadig apps into ui
 
             // simple example
-            GridLayout layout = findViewById(R.id.gridApps);
-            layout.removeAllViewsInLayout();
             for(String i : apps.keySet()){
                 PepperApp app = apps.get(i);
                 Button button = new Button(this);
@@ -94,16 +93,17 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
                     // creating test user
                     // TODO: change
-                    Switch swDefaultUser = findViewById(R.id.swDefaultUser);
+                    /*Switch swDefaultUser = findViewById(R.id.swDefaultUser);
                     User user = this.pepperCMS.getAuthenticatedUser();
                     if(swDefaultUser.isChecked()) {
                         Log.w(TAG, "Use default user for intent!");
                         user = this.pepperCMS.getDefaultUser();
                     }
                     pepperCMS.startPepperApp(app, user);
+                     */
 
                 });
-                layout.addView(button);
+                //layout.addView(button);
             }
 
         });
@@ -188,6 +188,16 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
      */
     @Override
     public void onAppUpdated(PepperApp app) {toast("updated: " + app.getName());}
+
+    @Override
+    public void onRepositoryError(PepperCMSRepository repository, Exception e) {
+        Log.e(TAG, e.getMessage());
+    }
+
+    @Override
+    public void onPendingTasksChanged(ArrayList<Thread> threads, Thread newThread) {
+        Log.e(TAG, "pending threads: " + threads.size() + "\n\t new thread: " + newThread);
+    }
 
     /**
      * Called when focus is gained
