@@ -47,6 +47,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
 
     private final Activity activity;
     private AppController appController = null;
+    private ArrayList<PepperAppInterface> pepperAppInterfaceListener = new ArrayList<>();
 
     private static boolean useOnlineSaved = false;
     private String storagePath = "games/db/";
@@ -130,6 +131,31 @@ public class PepperCMSController implements PepperCMSControllerInterface {
     }
 
     @Override
+    public boolean addPepperAppInterfaceListener(PepperAppInterface listener){
+        if(!pepperAppInterfaceListener.contains(listener)){
+            pepperAppInterfaceListener.add(listener);
+
+            // call notifications once at registered listener
+            notifyAllLPepperAppInterfaceListener();
+
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removePepperAppInterfaceListener(PepperAppInterface listener){
+        return pepperAppInterfaceListener.remove(listener);
+    }
+
+    /**
+     * Notifies all registered listeners using all main notify functions
+     */
+    private void notifyAllLPepperAppInterfaceListener(){
+        notifyOnPendingTaskChangedListener();
+    }
+
+    @Override
     public Thread addAndStart(Runnable function, boolean runOnUi) {
         // use surrounding thread for handling the function to run
         Thread thread = new Thread(() -> {
@@ -177,7 +203,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
      * @param newThread newly created {@link Thread} if new thread started, null otherwise.
      */
     private void notifyOnPendingTaskChangedListener(Thread newThread){
-        for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener){
+        for (PepperAppInterface listener : pepperAppInterfaceListener){
             Log.d(TAG, "\t> notify pending tasks listeners.");
             new Thread(() -> {
                 listener.onPendingTasksChanged(this.pendingThreads, newThread);
@@ -191,6 +217,9 @@ public class PepperCMSController implements PepperCMSControllerInterface {
      */
     private void notifyOnPendingTaskChangedListener(){{
         notifyOnPendingTaskChangedListener(null);
+        notifyOnAppsLoadedListener(this.apps, true);
+        notifyOnAppsUpdatetableListener(this.updatableApps);
+        // TODO: add notifier call for installable apps
     }}
 
     @Override
@@ -297,7 +326,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
      * @param e
      */
     private void notifyOnRepositoryError(PepperCMSRepository repository, Exception e){
-        for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener){
+        for (PepperAppInterface listener : pepperAppInterfaceListener){
             Log.d(TAG, "\t> notify listener on error");
             new Thread(() -> {
                 listener.onRepositoryError(repository, e);
@@ -351,10 +380,10 @@ public class PepperCMSController implements PepperCMSControllerInterface {
     /**
      * Notifies listeners thast apps are loaded.
      * @param apps          {@link HashMap} of {@link PepperApp}s
-     * @param isRemote      {@code true} if list are remote apps, {@code false} otherwise.
+     * @param isRemote      {@code true} if list are remote apps or also can include remote apps, {@code false} otherwise.
      */
     private void notifyOnAppsLoadedListener(HashMap<String, PepperApp> apps, boolean isRemote){
-        for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener) {
+        for (PepperAppInterface listener : pepperAppInterfaceListener) {
             Log.d(TAG, "\t> calling apps loaded callbacks");
             new Thread(() -> {
                 listener.onPepperAppsLoaded(apps, isRemote);
@@ -367,7 +396,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
      * @param apps      {@link HashMap} of updateable {@link PepperApp}s
      */
     private void notifyOnAppsUpdatetableListener(HashMap<String, PepperApp> apps){
-        for (PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener) {
+        for (PepperAppInterface listener : pepperAppInterfaceListener) {
             Log.d(TAG, "\t> calling apps updateable callbacks");
             for(PepperApp app : apps.values()){
                 new Thread(() -> {
@@ -376,6 +405,8 @@ public class PepperCMSController implements PepperCMSControllerInterface {
             }
         }
     }
+
+    // TOO: add notifier for installable apps
 
     /**
      * Adds {@link PepperApp}s to list from {@link String} data.
@@ -487,7 +518,7 @@ public class PepperCMSController implements PepperCMSControllerInterface {
     }
 
     private void notifyOnAppStart(PepperApp app){
-        for(PepperAppInterface listener : PepperCMSControllerInterface.pepperAppInterfaceListener){
+        for(PepperAppInterface listener : pepperAppInterfaceListener){
             listener.onAppStarted(app);
         }
     }

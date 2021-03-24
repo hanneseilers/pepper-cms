@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.gridlayout.widget.GridLayout;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import android.util.Log;
@@ -33,10 +34,11 @@ import de.fhkiel.pepper.cms_lib.users.User;
 public class MainActivity extends RobotActivity implements RobotLifecycleCallbacks, PepperAppInterface {
     private static final String TAG = MainActivity.class.getName();
 
+    private static MainActivity INSTANCE;
+
     private PepperCMSControllerInterface pepperCMS;
-    private HashMap<String, PepperApp> pepperApps = new HashMap<>();
-    private NavHostFragment navHostFragment;
     private NavController navController;
+    private HashMap<String, PepperApp> pepperApps = new HashMap<>();
 
     private boolean tryRepository = false;
 
@@ -48,10 +50,6 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
         // disable big speech bar
         setSpeechBarDisplayStrategy(SpeechBarDisplayStrategy.IMMERSIVE);
-
-        // get Nav Host Fragment
-        navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_container);
-        navController = navHostFragment.getNavController();
 
         // Creating cms app controller
         pepperCMS = new PepperCMSController(this);
@@ -66,10 +64,45 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
         // ---- UI LOGIC END ----
 
         // after loading ui, get available apps
-        new Thread(() -> {
-            toast( getString(R.string.toastLoadingApps) );
-            pepperCMS.startCMS(true );
-        }).start();
+        pepperCMS.addAndStart(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> {
+                        toast( getString(R.string.toastLoadingApps) );
+                });
+                pepperCMS.startCMS(true );
+            }
+        });
+
+        INSTANCE = this;
+    }
+
+    /**
+     * Gets instance of {@link MainActivity}
+     * @return  {@link MainActivity} object.
+     */
+    public static MainActivity getINSTANCE(){
+        return INSTANCE;
+    }
+
+    /**
+     * Gets the actual {@link PepperCMSControllerInterface}.
+     * @return  object implementing {@link PepperCMSControllerInterface}.
+     */
+    public PepperCMSControllerInterface getPepperCMS() {
+        return pepperCMS;
+    }
+
+    /**
+     * Gets {@link NavController} if not already done
+     * @return  {@link NavController}
+     */
+    public NavController getNavController(){
+        if( this.navController != null ){
+            // get controller
+            this.navController = Navigation.findNavController(this, R.id.nav_host_fragment_container );
+        }
+        return this.navController;
     }
 
     @Override
@@ -205,7 +238,7 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
     @Override
     public void onPendingTasksChanged(ArrayList<Thread> threads, Thread newThread) {
-        Log.e(TAG, "pending threads: " + threads.size() + "\n\t new thread: " + newThread);
+        Log.d(TAG, "pending threads: " + threads.size() + "\n\t new thread: " + newThread);
     }
 
     /**

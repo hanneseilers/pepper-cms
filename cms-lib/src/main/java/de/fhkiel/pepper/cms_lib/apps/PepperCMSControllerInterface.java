@@ -17,8 +17,6 @@ import de.fhkiel.pepper.cms_lib.users.User;
  */
 public interface PepperCMSControllerInterface {
 
-    ArrayList<PepperAppInterface> pepperAppInterfaceListener = new ArrayList<>();
-
     /**
      * Function to start the CMS.
      * @param useOnline     Use true to check online rescources (if available), otherwise false.
@@ -97,15 +95,19 @@ public interface PepperCMSControllerInterface {
      */
     HashMap<String, PepperApp> getUpdateablePepperApps();
 
-    default void addPepperAppInterfaceListener(PepperAppInterface listener){
-        if(!pepperAppInterfaceListener.contains(listener)){
-            pepperAppInterfaceListener.add(listener);
-        }
-    }
+    /**
+     * Adds a new {@link PepperAppInterface} listener, if not already added
+     * @param listener      {@link PepperAppInterface} listener to add
+     * @return              true if aded, false otherwise.
+     */
+    boolean addPepperAppInterfaceListener(PepperAppInterface listener);
 
-    default void removePepperAppInterfaceListener(PepperAppInterface listener){
-        pepperAppInterfaceListener.remove(listener);
-    }
+    /**
+     * Removes a {@link PepperAppInterface} listener, if it is registered.
+     * @param listener      {@link PepperAppInterface} listener to remove
+     * @return              true if listener is remved, false otherwise
+     */
+    boolean removePepperAppInterfaceListener(PepperAppInterface listener);
 
     /**
      * Needs to be called, if intent return result. Handles whatever needs to be done with the result of an app.

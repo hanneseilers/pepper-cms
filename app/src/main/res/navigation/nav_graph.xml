@@ -10,7 +10,7 @@
         android:label="fragment_overview"
         tools:layout="@layout/fragment_overview" >
         <action
-            android:id="@+id/action_fragmentOverview_to_fragmentSettingsOverview2"
+            android:id="@+id/action_settingsOverview"
             app:destination="@id/fragmentSettingsOverview2" />
     </fragment>
     <fragment
